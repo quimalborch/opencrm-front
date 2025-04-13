@@ -4,8 +4,92 @@ import Layout from '../layouts/Layout.astro';
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+
+
+const API_BASE_URL = import.meta.env.API_BASE_URL;
+
+async function makeAuthenticatedRequest(endpoint: string, options: RequestInit = {}) {
+  // Obtener el token y timestamp
+  const tokenResponse = await fetch('/api/generate-token');
+  const { token, timestamp } = await tokenResponse.json();
+
+  // Configurar headers por defecto
+  const defaultHeaders = {
+    'x-opencrm-auth': token,
+    'x-timestamp': timestamp.toString(),
+    'Content-Type': 'application/json',
+  };
+
+  // Combinar opciones
+  const finalOptions = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+  };
+
+  // Hacer la petición
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, finalOptions);
+  
+  if (!response.ok) {
+    throw new Error(`Error HTTP: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+let pingResult = '';
+let error = '';
+
+// Manejador del click del botón
+async function handleTestApi() {
+  try {
+    const result = await makeAuthenticatedRequest('/api/ping');
+    pingResult = JSON.stringify(result, null, 2);
+  } catch (e) {
+    error = e instanceof Error ? e.message : 'Error desconocido';
+  }
+}
+
 ---
 
 <Layout>
-	<Welcome />
+	<main>
+	  	<h1>Test API Connection</h1>
+	  	<button id="testButton">Probar API</button>
+	  
+	  	<div id="result" class="result">
+			Resultado aparecerá aquí...
+	  	</div>
+	</main>
 </Layout>
+
+<script>
+	const button = document.getElementById('testButton');
+	const resultDiv = document.getElementById('result');
+  
+	button?.addEventListener('click', async () => {
+		try {
+			resultDiv!.textContent = 'Cargando...';
+			
+			const tokenResponse = await fetch('/api/generate-token');
+			const { token, timestamp } = await tokenResponse.json();
+			
+			console.log(token)
+			console.log(timestamp)
+			const response = await fetch('http://localhost:3000/api/ping', {
+			headers: {
+				'x-opencrm-auth': token,
+				'x-timestamp': timestamp.toString()
+			}
+			});
+			
+			const data = await response.json();
+			resultDiv!.textContent = JSON.stringify(data, null, 2);
+		} catch (error) {
+			resultDiv!.textContent = `Error: ${error instanceof Error ? error.message : 'Error desconocido'}`;
+			resultDiv!.classList.add('error');
+		}
+	});
+</script>
