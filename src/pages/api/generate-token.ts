@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+export const prerender = false;
 
 const SECRET_KEY = import.meta.env.SECRET_KEY; // guardada en .env
 
