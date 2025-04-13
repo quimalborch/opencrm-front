@@ -78,7 +78,7 @@ async function handleTestApi() {
 			
 			console.log(token)
 			console.log(timestamp)
-			const response = await fetch('http://api.opencrm.quimalborch.com/api/ping', {
+			const response = await fetch('https://api.opencrm.quimalborch.com/api/ping', {
 			headers: {
 				'x-opencrm-auth': token,
 				'x-timestamp': timestamp.toString()
