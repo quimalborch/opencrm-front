@@ -111,8 +111,6 @@ export const useAuth = () => {
 
       const { csrfToken } = await csrfResponse.json();
       
-      console.log("csrfToken en logout", csrfToken);
-
       // Realizar el signout con el token CSRF
       const response = await fetch(`${API_URL}/api/auth/signout`, {
         method: 'POST',
