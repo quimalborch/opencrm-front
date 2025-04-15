@@ -106,19 +106,12 @@ export const useAuth = () => {
       });
       
       if (!csrfResponse.ok) {
-        console.error('Error CSRF Response:', await csrfResponse.text());
         throw new Error('Error al obtener el token CSRF');
       }
 
-      const csrfData = await csrfResponse.json();
-      const csrfToken = csrfData.csrfToken;
+      const { csrfToken } = await csrfResponse.json();
       
-      if (!csrfToken) {
-        console.error('CSRF Token is empty:', csrfData);
-        throw new Error('Token CSRF no válido');
-      }
-
-      console.log("Iniciando logout con CSRF token:", csrfToken);
+      console.log("csrfToken en logout", csrfToken);
 
       // Realizar el signout con el token CSRF
       const response = await fetch(`${API_URL}/api/auth/signout`, {
@@ -128,16 +121,11 @@ export const useAuth = () => {
           'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken
         },
-        body: JSON.stringify({ 
-          csrfToken,
-          callbackUrl: `${API_URL}/login`
-        }),
+        body: JSON.stringify({ csrfToken }),
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Signout Response Error:', errorText);
-        throw new Error(`Error al cerrar sesión: ${errorText}`);
+        throw new Error('Error al cerrar sesión');
       }
 
       setAuthState({
@@ -149,7 +137,6 @@ export const useAuth = () => {
       // Redirigir al login después de cerrar sesión
       window.location.href = '/login';
     } catch (error) {
-      console.error('Logout error:', error);
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
