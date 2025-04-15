@@ -1,3 +1,8 @@
+---
+import NavBar from '../components/NavBar';
+import '../styles/global.css';
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
@@ -8,11 +13,12 @@
 		<title>OpenCRM | Main Menu</title>
 	</head>
 	<body>
+		<NavBar client:load />
 		<slot />
 	</body>
 </html>
 
-<style>
+<style is:global>
 	html,
 	body {
 		margin: 0;
