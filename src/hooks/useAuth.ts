@@ -96,11 +96,38 @@ export const useAuth = () => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      await fetch(`${API_URL}/api/auth/signout`, {
-        method: 'POST',
+      // Obtener el token CSRF
+      const csrfResponse = await fetch(`${API_URL}/api/auth/csrf`, {
+        method: 'GET',
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
+      if (!csrfResponse.ok) {
+        throw new Error('Error al obtener el token CSRF');
+      }
+
+      const { csrfToken } = await csrfResponse.json();
+      
+      console.log("csrfToken en logout", csrfToken);
+
+      // Realizar el signout con el token CSRF
+      const response = await fetch(`${API_URL}/api/auth/signout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ csrfToken }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al cerrar sesión');
+      }
+
       setAuthState({
         user: null,
         isLoading: false,
