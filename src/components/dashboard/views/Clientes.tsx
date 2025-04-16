@@ -20,18 +20,45 @@ export function ClientesView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
+    try {
+      // Obtener el token y timestamp
+      const tokenResponse = await fetch('/api/generate-token');
+      const { token, timestamp } = await tokenResponse.json();
+
+      // Configurar headers por defecto
+      const defaultHeaders = {
+        'x-opencrm-auth': token,
+        'x-timestamp': timestamp.toString(),
+        'Content-Type': 'application/json',
+      };
+
+      // Combinar opciones
+      const finalOptions = {
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...options.headers,
+        },
+      };
+
+      // Hacer la petición
+      const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}${endpoint}`, finalOptions);
+      
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Error en la petición');
+    }
+  };
+
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/clients`, {
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          throw new Error('Error al obtener los clientes');
-        }
-
-        const data = await response.json();
+        const data = await makeAuthenticatedRequest('/api/clients');
         setClientes(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido');
