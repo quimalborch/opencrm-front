@@ -186,6 +186,35 @@ export const useAuth = () => {
     }
   };
 
+  const register = async (email: string, password: string, name: string) => {
+    try {
+      setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const response = await fetch(`${API_URL}/api/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error en el registro');
+      }
+
+      // Después del registro exitoso, hacer login automáticamente
+      await login(email, password);
+    } catch (error) {
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Error en el registro',
+      }));
+      throw error;
+    }
+  };
+
   useEffect(() => {
     checkSession();
   }, []);
@@ -196,6 +225,7 @@ export const useAuth = () => {
     error: authState.error,
     login,
     logout,
+    register,
     checkSession,
   };
 }; 
