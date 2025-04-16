@@ -1,5 +1,6 @@
 ---
 import RegisterForm from '../components/RegisterForm';
+import NavBar from '../components/NavBar';
 ---
 
 <html lang="es">
@@ -11,6 +12,7 @@ import RegisterForm from '../components/RegisterForm';
     <title>Registro - OpenCRM</title>
   </head>
   <body>
+    <NavBar client:load />
     <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <RegisterForm client:load />
     </div>
