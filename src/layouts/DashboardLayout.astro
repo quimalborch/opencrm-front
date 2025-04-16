@@ -1,5 +1,6 @@
 ---
 import { Sidebar } from '../components/dashboard/Sidebar';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 ---
 
 <html lang="es">
@@ -11,9 +12,11 @@ import { Sidebar } from '../components/dashboard/Sidebar';
     <title>Dashboard - OpenCRM</title>
   </head>
   <body>
-    <div class="flex h-screen">
-      <Sidebar client:load />
-      <slot />
-    </div>
+    <ProtectedRoute client:load>
+      <div class="flex h-screen">
+        <Sidebar client:load />
+        <slot />
+      </div>
+    </ProtectedRoute>
   </body>
 </html> 
