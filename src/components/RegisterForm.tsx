@@ -108,6 +108,12 @@ const RegisterForm = () => {
             {isLoading ? 'Registrando...' : 'Registrarse'}
           </button>
         </div>
+        <div className="text-center text-sm text-gray-600">
+          ¿Ya tienes cuenta?{' '}
+          <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            Inicia sesión aquí
+          </a>
+        </div>
       </form>
     </div>
   );

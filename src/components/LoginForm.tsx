@@ -92,6 +92,12 @@ const LoginForm = () => {
             {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </button>
         </div>
+        <div className="text-center text-sm text-gray-600">
+          ¿No tienes cuenta?{' '}
+          <a href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+            Regístrate aquí
+          </a>
+        </div>
       </form>
     </div>
   );
