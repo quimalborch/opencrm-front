@@ -199,8 +199,8 @@ export const useAuth = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Error en el registro');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error en el registro');
       }
 
       // Después del registro exitoso, hacer login automáticamente
