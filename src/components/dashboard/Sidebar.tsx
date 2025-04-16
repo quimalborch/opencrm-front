@@ -48,22 +48,26 @@ export function Sidebar() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      {/* Botón de menú móvil */}
-      <button
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+      {/* Header móvil */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center px-4 z-50">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 hover:bg-gray-100 rounded-xl text-gray-500 hover:text-gray-700 transition-all duration-200"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+        <h1 className="ml-4 text-xl font-bold text-gray-800">OpenCRM</h1>
+      </div>
 
       {/* Overlay para móvil */}
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-all duration-300"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
+      {/* Sidebar */}
       <div
         className={cn(
           "fixed lg:relative inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 rounded-r-2xl shadow-lg",
@@ -72,27 +76,30 @@ export function Sidebar() {
             "w-20": !isExpanded,
             "-translate-x-full lg:translate-x-0": !isMobileMenuOpen,
             "translate-x-0": isMobileMenuOpen,
-          }
+          },
+          "lg:mt-0 mt-16" // Margen superior en móvil para el header
         )}
         onMouseEnter={() => !isExpandedFixed && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className={cn("p-4 border-b border-gray-200 flex items-center", {
+        {/* Header del sidebar (solo visible en desktop) */}
+        <div className={cn("p-4 border-b border-gray-200 flex items-center lg:flex hidden", {
           "justify-center": !isExpanded,
           "justify-between": isExpanded
         })}>
           {isExpanded && <h2 className="text-xl font-bold text-gray-800">OpenCRM</h2>}
           <button
             onClick={handleToggleExpand}
-            className="hidden lg:block p-2 hover:bg-gray-100 rounded-xl text-gray-500 hover:text-gray-700 transition-all duration-200 hover:shadow-sm"
+            className="p-2 hover:bg-gray-100 rounded-xl text-gray-500 hover:text-gray-700 transition-all duration-200 hover:shadow-sm"
           >
             <ChevronLeft className={cn("h-5 w-5 transition-transform", {
               "rotate-180": !isExpanded
             })} />
           </button>
         </div>
-        
-        <nav className="flex-1 p-4">
+
+        {/* Resto del sidebar */}
+        <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -125,7 +132,8 @@ export function Sidebar() {
             })}
           </ul>
         </nav>
-        
+
+        {/* Footer del sidebar */}
         <div className={cn("p-4 border-t border-gray-200", {
           "flex justify-center": !isExpanded
         })}>
@@ -184,7 +192,11 @@ export function Sidebar() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col min-w-0 w-full overflow-hidden">
+      {/* Main content */}
+      <div className={cn(
+        "flex-1 flex flex-col min-w-0 w-full overflow-hidden",
+        "lg:mt-0 mt-16" // Margen superior en móvil para el header
+      )}>
         <main className="flex-1 overflow-y-auto bg-gray-50 w-full">
           <div className="w-full">
             <DashboardContent activeView={activeItem} />
