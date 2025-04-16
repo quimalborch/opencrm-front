@@ -25,7 +25,7 @@ const menuItems = [
 
 export function Sidebar() {
   const [activeItem, setActiveItem] = useState('dashboard');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isExpandedFixed, setIsExpandedFixed] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isLoading, logout } = useAuth();
@@ -35,7 +35,16 @@ export function Sidebar() {
     window.location.href = '/login';
   };
 
-  const effectiveCollapsed = isCollapsed && !isHovered;
+  // El sidebar está expandido si está fijo en expandido O (si está minimizado pero con hover Y no se acaba de pulsar el botón)
+  const isExpanded = isExpandedFixed || (isHovered && !isExpandedFixed);
+
+  const handleToggleExpand = () => {
+    setIsExpandedFixed(!isExpandedFixed);
+    // Si estamos minimizando, forzamos a quitar el hover
+    if (isExpandedFixed) {
+      setIsHovered(false);
+    }
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -57,34 +66,34 @@ export function Sidebar() {
 
       <div
         className={cn(
-          "fixed lg:relative inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0",
+          "fixed lg:relative inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 rounded-r-2xl shadow-lg",
           {
-            "w-64": !effectiveCollapsed,
-            "w-20": effectiveCollapsed,
+            "w-64": isExpanded,
+            "w-20": !isExpanded,
             "-translate-x-full lg:translate-x-0": !isMobileMenuOpen,
             "translate-x-0": isMobileMenuOpen,
           }
         )}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => !isExpandedFixed && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className={cn("p-4 border-b border-gray-200 flex items-center", {
-          "justify-center": effectiveCollapsed,
-          "justify-between": !effectiveCollapsed
+          "justify-center": !isExpanded,
+          "justify-between": isExpanded
         })}>
-          {!effectiveCollapsed && <h2 className="text-xl font-bold text-gray-800">OpenCRM</h2>}
+          {isExpanded && <h2 className="text-xl font-bold text-gray-800">OpenCRM</h2>}
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:block p-1 hover:bg-gray-100 rounded-lg"
+            onClick={handleToggleExpand}
+            className="hidden lg:block p-2 hover:bg-gray-100 rounded-xl text-gray-500 hover:text-gray-700 transition-all duration-200 hover:shadow-sm"
           >
             <ChevronLeft className={cn("h-5 w-5 transition-transform", {
-              "rotate-180": effectiveCollapsed
+              "rotate-180": !isExpanded
             })} />
           </button>
         </div>
         
         <nav className="flex-1 p-4">
-          <ul className="space-y-1">
+          <ul className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -95,19 +104,21 @@ export function Sidebar() {
                       setIsMobileMenuOpen(false);
                     }}
                     className={cn(
-                      "w-full flex items-center px-3 py-2 rounded-lg transition-colors",
+                      "w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200",
                       {
-                        "justify-center": effectiveCollapsed,
-                        "space-x-3": !effectiveCollapsed,
+                        "justify-center": !isExpanded,
+                        "space-x-3": isExpanded,
                       },
                       activeItem === item.id
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-blue-50 text-blue-600 shadow-sm hover:shadow-md hover:bg-blue-100"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm"
                     )}
-                    title={effectiveCollapsed ? item.label : undefined}
+                    title={!isExpanded ? item.label : undefined}
                   >
-                    <Icon className="h-5 w-5 flex-shrink-0" />
-                    {!effectiveCollapsed && <span>{item.label}</span>}
+                    <Icon className={cn("h-5 w-5 flex-shrink-0 transition-colors", {
+                      "text-blue-500": activeItem === item.id
+                    })} />
+                    {isExpanded && <span className="font-medium">{item.label}</span>}
                   </button>
                 </li>
               );
@@ -116,35 +127,35 @@ export function Sidebar() {
         </nav>
         
         <div className={cn("p-4 border-t border-gray-200", {
-          "flex justify-center": effectiveCollapsed
+          "flex justify-center": !isExpanded
         })}>
           {isLoading ? (
             <div className={cn("flex items-center", {
-              "justify-center": effectiveCollapsed,
-              "space-x-3": !effectiveCollapsed
+              "justify-center": !isExpanded,
+              "space-x-3": isExpanded
             })}>
-              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-              {!effectiveCollapsed && (
+              <div className="w-10 h-10 rounded-xl bg-gray-200 animate-pulse" />
+              {isExpanded && (
                 <div className="space-y-1">
-                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-3 w-32 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-3 w-32 bg-gray-200 rounded-lg animate-pulse" />
                 </div>
               )}
             </div>
           ) : (
             <div className={cn("flex items-center", {
-              "justify-center": effectiveCollapsed,
-              "justify-between": !effectiveCollapsed
+              "justify-center": !isExpanded,
+              "justify-between": isExpanded
             })}>
               <div className={cn("flex items-center", {
-                "space-x-3": !effectiveCollapsed
+                "space-x-3": isExpanded
               })}>
-                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0 border border-gray-200">
                   {user?.image ? (
                     <img
                       src={user.image}
                       alt={user.name || 'Usuario'}
-                      className="w-8 h-8 rounded-full"
+                      className="w-10 h-10 rounded-xl"
                     />
                   ) : (
                     <span className="text-sm font-medium text-gray-600">
@@ -152,17 +163,17 @@ export function Sidebar() {
                     </span>
                   )}
                 </div>
-                {!effectiveCollapsed && (
+                {isExpanded && (
                   <div>
                     <p className="text-sm font-medium text-gray-900">{user?.name || 'Usuario'}</p>
                     <p className="text-xs text-gray-500">{user?.email}</p>
                   </div>
                 )}
               </div>
-              {!effectiveCollapsed && (
+              {isExpanded && (
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200"
                   title="Cerrar sesión"
                 >
                   <LogOut className="h-5 w-5" />
