@@ -92,7 +92,7 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
       onClick={() => setActiveTab(tab)}
       className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
         activeTab === tab 
-          ? 'bg-blue-50 text-blue-600' 
+          ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600 md:border-none' 
           : 'text-gray-600 hover:bg-gray-50'
       }`}
     >
@@ -103,11 +103,46 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white rounded-xl shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] flex">
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 mt-[64px] md:mt-0" />
+        <Dialog.Content 
+          className="
+            fixed left-[50%] translate-x-[-50%]
+            md:top-[50%] md:translate-y-[-50%]
+            top-[80px] bottom-[16px]
+            w-[calc(100%-2rem)] md:w-full max-w-4xl 
+            md:h-auto md:max-h-[90vh]
+            overflow-hidden bg-white rounded-xl shadow-2xl 
+            data-[state=open]:animate-in data-[state=closed]:animate-out 
+            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
+            data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
+            data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] 
+            data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] 
+            flex flex-col md:flex-row
+          "
+        >
+          {/* Header para móvil */}
+          <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+            <Dialog.Title className="text-lg font-bold text-gray-900">
+              {title}
+            </Dialog.Title>
+            <Dialog.Close asChild>
+              <button className="rounded-full p-2 hover:bg-gray-100 transition-colors">
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </Dialog.Close>
+          </div>
+
+          {/* Tabs para móvil */}
+          <div className="md:hidden flex overflow-x-auto border-b border-gray-100 bg-white sticky top-[65px] z-10">
+            <div className="flex space-x-4 py-2 px-4 min-w-full">
+              <TabButton tab="basic" label="Información Básica" />
+              <TabButton tab="contact" label="Contacto" />
+              <TabButton tab="details" label="Detalles" />
+            </div>
+          </div>
           
-          {/* Sidebar */}
-          <div className="w-64 bg-gray-50 p-6 border-r border-gray-100 flex flex-col">
+          {/* Sidebar para desktop */}
+          <div className="hidden md:flex w-64 bg-gray-50 p-6 border-r border-gray-100 flex-col">
             <Dialog.Title className="text-xl font-bold text-gray-900 mb-6">
               {title}
             </Dialog.Title>
@@ -131,16 +166,14 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto">
-            <form onSubmit={handleSubmit} className="h-full">
-              <div className="p-8">
+          <div className="flex-1 flex flex-col min-h-0">
+            <form onSubmit={handleSubmit} className="flex-1 flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 {activeTab === 'basic' && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2.5">
-                        <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                          Nombre de la compañía
-                        </Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nombre de la compañía</Label>
                         <Input
                           id="name"
                           value={formData.name}
@@ -150,10 +183,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                           className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                         />
                       </div>
-                      <div className="space-y-2.5">
-                        <Label htmlFor="taxId" className="text-sm font-medium text-gray-700">
-                          ID Fiscal
-                        </Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="taxId">ID Fiscal</Label>
                         <Input
                           id="taxId"
                           value={formData.taxId}
@@ -164,10 +195,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                         />
                       </div>
                     </div>
-                    <div className="space-y-2.5">
-                      <Label htmlFor="industry" className="text-sm font-medium text-gray-700">
-                        Industria
-                      </Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="industry">Industria</Label>
                       <Input
                         id="industry"
                         value={formData.industry}
@@ -176,11 +205,9 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                         className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2.5">
-                        <Label htmlFor="type" className="text-sm font-medium text-gray-700">
-                          Tipo
-                        </Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="type">Tipo</Label>
                         <Input
                           id="type"
                           value={formData.type}
@@ -189,10 +216,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                           className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                         />
                       </div>
-                      <div className="space-y-2.5">
-                        <Label htmlFor="size" className="text-sm font-medium text-gray-700">
-                          Tamaño
-                        </Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="size">Tamaño</Label>
                         <Input
                           id="size"
                           value={formData.size}
@@ -207,11 +232,9 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
 
                 {activeTab === 'contact' && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2.5">
-                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                          Email
-                        </Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
                         <Input
                           id="email"
                           type="email"
@@ -221,10 +244,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                           className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                         />
                       </div>
-                      <div className="space-y-2.5">
-                        <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                          Teléfono
-                        </Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Teléfono</Label>
                         <Input
                           id="phone"
                           value={formData.phone}
@@ -234,10 +255,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                         />
                       </div>
                     </div>
-                    <div className="space-y-2.5">
-                      <Label htmlFor="website" className="text-sm font-medium text-gray-700">
-                        Sitio Web
-                      </Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="website">Sitio Web</Label>
                       <Input
                         id="website"
                         value={formData.website}
@@ -246,10 +265,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                         className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       />
                     </div>
-                    <div className="space-y-2.5">
-                      <Label htmlFor="address" className="text-sm font-medium text-gray-700">
-                        Dirección
-                      </Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Dirección</Label>
                       <Input
                         id="address"
                         value={formData.address}
@@ -258,11 +275,9 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                         className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2.5">
-                        <Label htmlFor="city" className="text-sm font-medium text-gray-700">
-                          Ciudad
-                        </Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="city">Ciudad</Label>
                         <Input
                           id="city"
                           value={formData.city}
@@ -271,10 +286,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                           className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                         />
                       </div>
-                      <div className="space-y-2.5">
-                        <Label htmlFor="country" className="text-sm font-medium text-gray-700">
-                          País
-                        </Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="country">País</Label>
                         <Input
                           id="country"
                           value={formData.country}
@@ -289,10 +302,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
 
                 {activeTab === 'details' && (
                   <div className="space-y-6">
-                    <div className="space-y-2.5">
-                      <Label htmlFor="status" className="text-sm font-medium text-gray-700">
-                        Estado
-                      </Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Estado</Label>
                       <Input
                         id="status"
                         value={formData.status}
@@ -301,10 +312,8 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                         className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       />
                     </div>
-                    <div className="space-y-2.5">
-                      <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
-                        Notas adicionales
-                      </Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="notes">Notas adicionales</Label>
                       <Textarea
                         id="notes"
                         value={formData.notes}
@@ -317,25 +326,25 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
                 )}
               </div>
 
-              <div className="border-t border-gray-100 bg-gray-50 p-6">
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
+              <div className="border-t border-gray-100 bg-gray-50 p-4 md:p-6 sticky bottom-0 z-10">
+                <div className="flex flex-col-reverse md:flex-row md:justify-between md:items-center gap-4">
+                  <div className="text-sm text-gray-500 hidden md:block">
                     {activeTab === 'basic' ? '1/3' : activeTab === 'contact' ? '2/3' : '3/3'}
                   </div>
-                  <div className="flex space-x-3">
+                  <div className="flex flex-col md:flex-row gap-3">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={onClose}
                       disabled={isSubmitting}
-                      className="px-6 h-11 rounded-lg border-gray-200 hover:bg-gray-50 transition-colors duration-200"
+                      className="h-11 px-4 rounded-lg border-gray-200 hover:bg-gray-50 transition-colors duration-200 w-full md:w-auto"
                     >
                       Cancelar
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={isSubmitting}
-                      className="px-6 h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 flex items-center gap-2"
+                      className="h-11 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 flex items-center justify-center gap-2 w-full md:w-auto"
                     >
                       {isSubmitting ? (
                         <>
