@@ -10,13 +10,15 @@ import {
   BarChart,
   LogOut,
   ChevronLeft,
-  Menu
+  Menu,
+  Building2
 } from "lucide-react";
 import { DashboardContent } from './DashboardContent';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'clientes', label: 'Clientes', icon: Users },
+  { id: 'companies', label: 'Compañías', icon: Building2 },
   { id: 'calendario', label: 'Calendario', icon: Calendar },
   { id: 'mensajes', label: 'Mensajes', icon: MessageSquare },
   { id: 'reportes', label: 'Reportes', icon: BarChart },
