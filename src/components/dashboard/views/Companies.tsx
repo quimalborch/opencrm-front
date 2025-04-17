@@ -5,19 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../../ui/dialog";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Textarea } from "../../ui/textarea";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import * as Dialog from '@radix-ui/react-dialog';
+import { X } from "lucide-react";
 
 interface Company {
   id: number;
@@ -57,13 +52,315 @@ const emptyCompany: CompanyFormData = {
   notes: '',
 };
 
+interface CompanyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  company?: Company;
+  onSubmit: (data: CompanyFormData) => Promise<void>;
+  title: string;
+}
+
+const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModalProps) => {
+  const [formData, setFormData] = useState<CompanyFormData>(company || emptyCompany);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<'basic' | 'contact' | 'details'>('basic');
+
+  useEffect(() => {
+    if (company) {
+      setFormData(company);
+    } else {
+      setFormData(emptyCompany);
+    }
+  }, [company]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+      onClose();
+    } catch (error) {
+      console.error('Error al procesar el formulario:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const TabButton = ({ tab, label }: { tab: typeof activeTab, label: string }) => (
+    <button
+      type="button"
+      onClick={() => setActiveTab(tab)}
+      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+        activeTab === tab 
+          ? 'bg-blue-50 text-blue-600' 
+          : 'text-gray-600 hover:bg-gray-50'
+      }`}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white rounded-xl shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] flex">
+          
+          {/* Sidebar */}
+          <div className="w-64 bg-gray-50 p-6 border-r border-gray-100 flex flex-col">
+            <Dialog.Title className="text-xl font-bold text-gray-900 mb-6">
+              {title}
+            </Dialog.Title>
+            
+            <div className="space-y-2">
+              <TabButton tab="basic" label="Información Básica" />
+              <TabButton tab="contact" label="Contacto" />
+              <TabButton tab="details" label="Detalles" />
+            </div>
+
+            <div className="mt-auto pt-6 border-t border-gray-200">
+              <div className="text-sm text-gray-500 mb-2">
+                {company ? 'Editando compañía existente' : 'Creando nueva compañía'}
+              </div>
+              <Dialog.Close asChild>
+                <button className="text-gray-400 hover:text-gray-500 transition-colors">
+                  <X className="h-5 w-5" />
+                </button>
+              </Dialog.Close>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto">
+            <form onSubmit={handleSubmit} className="h-full">
+              <div className="p-8">
+                {activeTab === 'basic' && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2.5">
+                        <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                          Nombre de la compañía
+                        </Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                          required
+                          placeholder="Ej: Acme Inc."
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                      <div className="space-y-2.5">
+                        <Label htmlFor="taxId" className="text-sm font-medium text-gray-700">
+                          ID Fiscal
+                        </Label>
+                        <Input
+                          id="taxId"
+                          value={formData.taxId}
+                          onChange={(e) => setFormData(prev => ({ ...prev, taxId: e.target.value }))}
+                          required
+                          placeholder="Ej: B12345678"
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label htmlFor="industry" className="text-sm font-medium text-gray-700">
+                        Industria
+                      </Label>
+                      <Input
+                        id="industry"
+                        value={formData.industry}
+                        onChange={(e) => setFormData(prev => ({ ...prev, industry: e.target.value }))}
+                        placeholder="Ej: Tecnología"
+                        className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2.5">
+                        <Label htmlFor="type" className="text-sm font-medium text-gray-700">
+                          Tipo
+                        </Label>
+                        <Input
+                          id="type"
+                          value={formData.type}
+                          onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                          placeholder="Ej: S.L."
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                      <div className="space-y-2.5">
+                        <Label htmlFor="size" className="text-sm font-medium text-gray-700">
+                          Tamaño
+                        </Label>
+                        <Input
+                          id="size"
+                          value={formData.size}
+                          onChange={(e) => setFormData(prev => ({ ...prev, size: e.target.value }))}
+                          placeholder="Ej: 50-100 empleados"
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'contact' && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2.5">
+                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                          Email
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                          placeholder="contacto@empresa.com"
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                      <div className="space-y-2.5">
+                        <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                          Teléfono
+                        </Label>
+                        <Input
+                          id="phone"
+                          value={formData.phone}
+                          onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                          placeholder="+34 123 456 789"
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label htmlFor="website" className="text-sm font-medium text-gray-700">
+                        Sitio Web
+                      </Label>
+                      <Input
+                        id="website"
+                        value={formData.website}
+                        onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                        placeholder="www.empresa.com"
+                        className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label htmlFor="address" className="text-sm font-medium text-gray-700">
+                        Dirección
+                      </Label>
+                      <Input
+                        id="address"
+                        value={formData.address}
+                        onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                        placeholder="Calle Principal 123"
+                        className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2.5">
+                        <Label htmlFor="city" className="text-sm font-medium text-gray-700">
+                          Ciudad
+                        </Label>
+                        <Input
+                          id="city"
+                          value={formData.city}
+                          onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                          placeholder="Madrid"
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                      <div className="space-y-2.5">
+                        <Label htmlFor="country" className="text-sm font-medium text-gray-700">
+                          País
+                        </Label>
+                        <Input
+                          id="country"
+                          value={formData.country}
+                          onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                          placeholder="España"
+                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'details' && (
+                  <div className="space-y-6">
+                    <div className="space-y-2.5">
+                      <Label htmlFor="status" className="text-sm font-medium text-gray-700">
+                        Estado
+                      </Label>
+                      <Input
+                        id="status"
+                        value={formData.status}
+                        onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+                        placeholder="Ej: Activo"
+                        className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="space-y-2.5">
+                      <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
+                        Notas adicionales
+                      </Label>
+                      <Textarea
+                        id="notes"
+                        value={formData.notes}
+                        onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                        placeholder="Añade cualquier información adicional relevante..."
+                        className="min-h-[200px] px-4 py-3 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-none"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-gray-100 bg-gray-50 p-6">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    {activeTab === 'basic' ? '1/3' : activeTab === 'contact' ? '2/3' : '3/3'}
+                  </div>
+                  <div className="flex space-x-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onClose}
+                      disabled={isSubmitting}
+                      className="px-6 h-11 rounded-lg border-gray-200 hover:bg-gray-50 transition-colors duration-200"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className="px-6 h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 flex items-center gap-2"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                          <span>Guardando...</span>
+                        </>
+                      ) : company ? 'Guardar cambios' : 'Crear compañía'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+};
+
 export function CompaniesView() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [currentCompany, setCurrentCompany] = useState<CompanyFormData | Company>(emptyCompany);
+  const [selectedCompany, setSelectedCompany] = useState<Company | undefined>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
     try {
@@ -112,28 +409,25 @@ export function CompaniesView() {
     fetchCompanies();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, isEdit: boolean) => {
-    e.preventDefault();
+  const handleSubmit = async (formData: CompanyFormData) => {
     try {
-      if (isEdit && 'id' in currentCompany) {
-        await makeAuthenticatedRequest(`/api/company/${(currentCompany as Company).id}`, {
+      if (selectedCompany) {
+        await makeAuthenticatedRequest(`/api/company/${selectedCompany.id}`, {
           method: 'PUT',
-          body: JSON.stringify(currentCompany),
+          body: JSON.stringify(formData),
         });
         toast.success('Compañía actualizada correctamente');
       } else {
         await makeAuthenticatedRequest('/api/company', {
           method: 'POST',
-          body: JSON.stringify(currentCompany),
+          body: JSON.stringify(formData),
         });
         toast.success('Compañía creada correctamente');
       }
       fetchCompanies();
-      setIsEditDialogOpen(false);
-      setIsCreateDialogOpen(false);
-      setCurrentCompany(emptyCompany);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Error al procesar la operación');
+      toast.error('Error al procesar la operación');
+      throw error;
     }
   };
 
@@ -151,122 +445,10 @@ export function CompaniesView() {
     }
   };
 
-  const CompanyForm = ({ isEdit }: { isEdit: boolean }) => (
-    <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleSubmit(e, isEdit)} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Nombre</Label>
-          <Input
-            id="name"
-            value={currentCompany.name}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, name: e.target.value})}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="taxId">ID Fiscal</Label>
-          <Input
-            id="taxId"
-            value={currentCompany.taxId}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, taxId: e.target.value})}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="industry">Industria</Label>
-          <Input
-            id="industry"
-            value={currentCompany.industry}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, industry: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="website">Sitio Web</Label>
-          <Input
-            id="website"
-            value={currentCompany.website}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, website: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Teléfono</Label>
-          <Input
-            id="phone"
-            value={currentCompany.phone}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, phone: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={currentCompany.email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, email: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="address">Dirección</Label>
-          <Input
-            id="address"
-            value={currentCompany.address}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, address: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="city">Ciudad</Label>
-          <Input
-            id="city"
-            value={currentCompany.city}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, city: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="country">País</Label>
-          <Input
-            id="country"
-            value={currentCompany.country}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, country: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="size">Tamaño</Label>
-          <Input
-            id="size"
-            value={currentCompany.size}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, size: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="type">Tipo</Label>
-          <Input
-            id="type"
-            value={currentCompany.type}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, type: e.target.value})}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="status">Estado</Label>
-          <Input
-            id="status"
-            value={currentCompany.status}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentCompany({...currentCompany, status: e.target.value})}
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="notes">Notas</Label>
-        <Textarea
-          id="notes"
-          value={currentCompany.notes}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCurrentCompany({...currentCompany, notes: e.target.value})}
-        />
-      </div>
-      <div className="flex justify-end space-x-2">
-        <Button type="submit">{isEdit ? 'Actualizar' : 'Crear'}</Button>
-      </div>
-    </form>
-  );
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCompany(undefined);
+  };
 
   if (isLoading) {
     return (
@@ -295,20 +477,15 @@ export function CompaniesView() {
       <div className="max-w-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Compañías</h1>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setCurrentCompany(emptyCompany)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Nueva Compañía
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>Crear Nueva Compañía</DialogTitle>
-              </DialogHeader>
-              <CompanyForm isEdit={false} />
-            </DialogContent>
-          </Dialog>
+          <Button
+            onClick={() => {
+              setSelectedCompany(undefined);
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva Compañía
+          </Button>
         </div>
         
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full">
@@ -317,23 +494,16 @@ export function CompaniesView() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xl">{company.name}</CardTitle>
                 <div className="flex space-x-2">
-                  <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setCurrentCompany(company)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl">
-                      <DialogHeader>
-                        <DialogTitle>Editar Compañía</DialogTitle>
-                      </DialogHeader>
-                      <CompanyForm isEdit={true} />
-                    </DialogContent>
-                  </Dialog>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setSelectedCompany(company);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -365,6 +535,14 @@ export function CompaniesView() {
             </Card>
           ))}
         </div>
+
+        <CompanyModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          company={selectedCompany}
+          onSubmit={handleSubmit}
+          title={selectedCompany ? 'Editar Compañía' : 'Crear Nueva Compañía'}
+        />
       </div>
     </div>
   );
