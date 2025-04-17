@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../../hooks/useAuth';
 import {
   Card,
   CardContent,
@@ -365,6 +366,7 @@ const CompanyModal = ({ isOpen, onClose, company, onSubmit, title }: CompanyModa
 };
 
 export function CompaniesView() {
+  const { user } = useAuth();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -429,7 +431,7 @@ export function CompaniesView() {
       } else {
         await makeAuthenticatedRequest('/api/company', {
           method: 'POST',
-          body: JSON.stringify(formData),
+          body: JSON.stringify({ ...formData, userId: user?.id }),
         });
         toast.success('Compañía creada correctamente');
       }
