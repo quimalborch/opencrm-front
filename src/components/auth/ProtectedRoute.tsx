@@ -15,7 +15,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const checkAuth = async () => {
     try {
       const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/auth/session`, {
-        credentials: 'include' // Importante para enviar las cookies
+        credentials: 'include' // Importante para enviar las cookies de JWT y session
       });
       
       if (!response.ok) {
