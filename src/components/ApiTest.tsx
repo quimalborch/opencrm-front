@@ -16,18 +16,10 @@ const ApiTest = () => {
     const tokenResponse = await fetch('/api/generate-token');
     const { token, timestamp } = await tokenResponse.json();
 
-    // Configurar headers por defecto
-    const defaultHeaders = {
-      'x-opencrm-auth': token,
-      'x-timestamp': timestamp.toString(),
-      'Content-Type': 'application/json',
-    };
-
     // Combinar opciones
     const finalOptions = {
       ...options,
       headers: {
-        ...defaultHeaders,
         ...options.headers,
       },
     };

@@ -378,16 +378,9 @@ export function CompaniesView() {
       const tokenResponse = await fetch('/api/generate-token');
       const { token, timestamp } = await tokenResponse.json();
 
-      const defaultHeaders = {
-        'x-opencrm-auth': token,
-        'x-timestamp': timestamp.toString(),
-        'Content-Type': 'application/json',
-      };
-
       const finalOptions = {
         ...options,
         headers: {
-          ...defaultHeaders,
           ...(options.headers || {}),
         },
       };
