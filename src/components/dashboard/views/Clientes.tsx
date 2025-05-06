@@ -22,10 +22,6 @@ export function ClientesView() {
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
     try {
-      // Obtener el token y timestamp
-      const tokenResponse = await fetch('/api/generate-token');
-      const { token, timestamp } = await tokenResponse.json();
-
       // Combinar opciones
       const finalOptions = {
         ...options,

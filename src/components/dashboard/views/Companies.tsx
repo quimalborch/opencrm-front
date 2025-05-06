@@ -375,14 +375,13 @@ export function CompaniesView() {
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
     try {
-      const tokenResponse = await fetch('/api/generate-token');
-      const { token, timestamp } = await tokenResponse.json();
 
       const finalOptions = {
         ...options,
         headers: {
           ...(options.headers || {}),
         },
+        credentials: 'include',
       };
 
       const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}${endpoint}`, finalOptions);

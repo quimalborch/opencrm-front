@@ -12,16 +12,13 @@ const ApiTest = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
-    // Obtener el token y timestamp
-    const tokenResponse = await fetch('/api/generate-token');
-    const { token, timestamp } = await tokenResponse.json();
-
     // Combinar opciones
     const finalOptions = {
       ...options,
       headers: {
         ...options.headers,
       },
+      credentials: 'include',
     };
 
     // Hacer la petición
