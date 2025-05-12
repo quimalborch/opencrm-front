@@ -30,7 +30,7 @@ export function SettingsView() {
   const [isLoading, setIsLoading] = useState(true);
 
   const modules = [
-    { id: 'companies', name: 'Empresas' },
+    { id: 'customers', name: 'Empresas' },
     { id: 'contacts', name: 'Contactos' },
   ];
 
@@ -39,22 +39,36 @@ export function SettingsView() {
       const tokenResponse = await fetch('/api/generate-token');
       const { token, timestamp } = await tokenResponse.json();
 
+      // Ensure headers object exists
+      const headers = new Headers(options.headers || {});
+      headers.set('Content-Type', 'application/json');
+      //headers.set('Authorization', `Bearer ${token}`);
+
+      // Create new options object with the correct headers
       const finalOptions = {
         ...options,
-        headers: {
-          ...(options.headers || {}),
-        },
-        credentials: 'include',
+        headers,
+        credentials: 'include' as RequestCredentials
       };
 
+      console.log(`Making request to: ${import.meta.env.PUBLIC_API_BASE_URL}${endpoint}`);
+      console.log('Request options:', {
+        method: finalOptions.method,
+        headers: Object.fromEntries([...headers.entries()]),
+        body: finalOptions.body
+      });
+      
       const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}${endpoint}`, finalOptions);
       
       if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`HTTP Error ${response.status}: ${errorText}`);
+        throw new Error(`Error HTTP: ${response.status} - ${errorText}`);
       }
 
       return response.json();
     } catch (error) {
+      console.error('Request error:', error);
       throw new Error(error instanceof Error ? error.message : 'Error en la petición');
     }
   };
@@ -100,26 +114,41 @@ export function SettingsView() {
     permissionType: 'view' | 'create' | 'modify' | 'delete',
     value: boolean
   ) => {
-    const userModulePermissions = permissions[userId]?.find(p => p.module === moduleId) || {
-      userId,
-      module: moduleId,
-      view: false,
-      create: false,
-      modify: false,
-      delete: false,
-    };
-
-    const updatedPermission = {
-      ...userModulePermissions,
-      [permissionType]: value,
-    };
-
     try {
-      const method = permissions[userId]?.some(p => p.module === moduleId) ? 'PUT' : 'POST';
-      await makeAuthenticatedRequest(`/api/permissions/${userId}`, {
+      // Find existing permissions for this module, if any
+      const existingPermission = permissions[userId]?.find(p => p.module === moduleId);
+      
+      // Create API payload with just the fields the API expects
+      const apiPayload = {
+        userId: userId,
+        module: moduleId, // API expects moduleName, not module
+        view: permissionType === 'view' ? value : existingPermission?.view || false,
+        create: permissionType === 'create' ? value : existingPermission?.create || false,
+        modify: permissionType === 'modify' ? value : existingPermission?.modify || false,
+        delete: permissionType === 'delete' ? value : existingPermission?.delete || false,
+      };
+      
+      const payloadString = JSON.stringify(apiPayload);
+      console.log('Sending permission update:', payloadString);
+      
+      // Determine if this is a new permission or an update
+      const method = existingPermission ? 'PUT' : 'POST';
+      const result = await makeAuthenticatedRequest(`/api/permissions/${userId}`, {
         method,
-        body: JSON.stringify(updatedPermission),
+        body: payloadString,
       });
+      
+      console.log('Permission update result:', result);
+
+      // Update local state
+      const updatedPermission = {
+        userId,
+        module: moduleId,
+        view: apiPayload.view,
+        create: apiPayload.create,
+        modify: apiPayload.modify,
+        delete: apiPayload.delete
+      };
 
       setPermissions(prev => ({
         ...prev,
@@ -130,6 +159,7 @@ export function SettingsView() {
       }));
     } catch (error) {
       console.error('Error al actualizar permisos:', error);
+      alert('Error al actualizar permisos: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     }
   };
 
