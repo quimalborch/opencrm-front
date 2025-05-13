@@ -37,9 +37,6 @@ export function SettingsView() {
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
     try {
-      const tokenResponse = await fetch('/api/generate-token');
-      const { token, timestamp } = await tokenResponse.json();
-
       // Ensure headers object exists
       const headers = new Headers(options.headers || {});
       headers.set('Content-Type', 'application/json');
