@@ -30,9 +30,11 @@ export function SettingsView() {
   const [isLoading, setIsLoading] = useState(true);
 
   const modules = [
-    { id: 'customers', name: 'Empresas' },
+    { id: 'companies', name: 'Empresas' },
     { id: 'contacts', name: 'Contactos' },
     { id: 'tasks', name: 'Tareas' },
+    { id: 'notes', name: 'Notas' },
+    { id: 'clients', name: 'Clientes' },
   ];
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
