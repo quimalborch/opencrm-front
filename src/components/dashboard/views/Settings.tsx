@@ -32,6 +32,7 @@ export function SettingsView() {
   const modules = [
     { id: 'customers', name: 'Empresas' },
     { id: 'contacts', name: 'Contactos' },
+    { id: 'tasks', name: 'Tareas' },
   ];
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
