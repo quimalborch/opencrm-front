@@ -11,7 +11,7 @@ import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Textarea } from "../../ui/textarea";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import toast, { Toaster } from 'react-hot-toast';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from "lucide-react";
 
@@ -375,7 +375,6 @@ export function CompaniesView() {
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
     try {
-
       const finalOptions = {
         ...options,
         headers: {
@@ -388,6 +387,22 @@ export function CompaniesView() {
       const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}${endpoint}`, finalOptions);
       
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          toast.error('🔒 No tienes permisos para realizar esta acción', {
+            icon: '🚫',
+          });
+          throw new Error('Sin permisos');
+        }
+        
+        if (response.status === 500) {
+          const errorData = await response.json();
+          toast.error(`🛑 Error del servidor: ${errorData.message || 'Error desconocido'}`, {
+            icon: '⚠️',
+            duration: 5000,
+          });
+          throw new Error(`Error del servidor: ${errorData.message || 'Error desconocido'}`);
+        }
+        
         throw new Error(`Error HTTP: ${response.status}`);
       }
 
@@ -403,7 +418,10 @@ export function CompaniesView() {
       setCompanies(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
-      toast.error('Error al cargar las compañías');
+      toast.error('❌ Error al cargar las compañías', { 
+        icon: '📋',
+        duration: 3000
+      });
     } finally {
       setIsLoading(false);
     }
@@ -420,17 +438,23 @@ export function CompaniesView() {
           method: 'PUT',
           body: JSON.stringify(formData),
         });
-        toast.success('Compañía actualizada correctamente');
+        toast.success('✅ Compañía actualizada correctamente', {
+          icon: '📝',
+        });
       } else {
         await makeAuthenticatedRequest('/api/company', {
           method: 'POST',
           body: JSON.stringify({ ...formData, userId: user?.id }),
         });
-        toast.success('Compañía creada correctamente');
+        toast.success('✅ Compañía creada correctamente', {
+          icon: '➕',
+        });
       }
       fetchCompanies();
     } catch (error) {
-      toast.error('Error al procesar la operación');
+      toast.error('❌ Error al procesar la operación', {
+        icon: '⚠️',
+      });
       throw error;
     }
   };
@@ -442,10 +466,14 @@ export function CompaniesView() {
       await makeAuthenticatedRequest(`/api/company/${id}`, {
         method: 'DELETE',
       });
-      toast.success('Compañía eliminada correctamente');
+      toast.success('✅ Compañía eliminada correctamente', {
+        icon: '🗑️',
+      });
       fetchCompanies();
     } catch (error) {
-      toast.error('Error al eliminar la compañía');
+      toast.error('❌ Error al eliminar la compañía', {
+        icon: '⚠️',
+      });
     }
   };
 
@@ -478,6 +506,19 @@ export function CompaniesView() {
 
   return (
     <div className="p-6 w-full min-w-0">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 5000,
+          style: {
+            background: '#333',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+          },
+        }} 
+      />
+      
       <div className="max-w-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Compañías</h1>
