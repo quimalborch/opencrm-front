@@ -10,7 +10,7 @@ import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import toast, { Toaster } from 'react-hot-toast';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from "lucide-react";
 
@@ -63,6 +63,8 @@ const ClienteModal = ({ isOpen, onClose, cliente, onSubmit, title }: ClienteModa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted!");
+    
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
@@ -296,10 +298,26 @@ export function ClientesView() {
         },
         credentials: 'include' as RequestCredentials,
       };
-
+      
       const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}${endpoint}`, finalOptions);
       
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          toast.error('🔒 No tienes permisos para realizar esta acción', {
+            icon: '🚫',
+          });
+          throw new Error('Sin permisos');
+        }
+        
+        if (response.status === 500) {
+          const errorData = await response.json();
+          toast.error(`🛑 Error del servidor: ${errorData.message || 'Error desconocido'}`, {
+            icon: '⚠️',
+            duration: 5000,
+          });
+          throw new Error(`Error del servidor: ${errorData.message || 'Error desconocido'}`);
+        }
+        
         throw new Error(`Error HTTP: ${response.status}`);
       }
 
@@ -315,7 +333,10 @@ export function ClientesView() {
       setClientes(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
-      toast.error('Error al cargar los clientes');
+      toast.error('❌ Error al cargar los clientes', { 
+        icon: '📋',
+        duration: 3000
+      });
     } finally {
       setIsLoading(false);
     }
@@ -332,17 +353,23 @@ export function ClientesView() {
           method: 'PUT',
           body: JSON.stringify(formData),
         });
-        toast.success('Cliente actualizado correctamente');
+        toast.success('✅ Cliente actualizado correctamente', {
+          icon: '📝',
+        });
       } else {
         await makeAuthenticatedRequest('/api/clients', {
           method: 'POST',
           body: JSON.stringify({ ...formData, userId: user?.id }),
         });
-        toast.success('Cliente creado correctamente');
+        toast.success('✅ Cliente creado correctamente', {
+          icon: '➕',
+        });
       }
       fetchClientes();
     } catch (error) {
-      toast.error('Error al procesar la operación');
+      toast.error('❌ Error al procesar la operación', {
+        icon: '⚠️',
+      });
       throw error;
     }
   };
@@ -354,10 +381,14 @@ export function ClientesView() {
       await makeAuthenticatedRequest(`/api/clients/${id}`, {
         method: 'DELETE',
       });
-      toast.success('Cliente eliminado correctamente');
+      toast.success('✅ Cliente eliminado correctamente', {
+        icon: '🗑️',
+      });
       fetchClientes();
     } catch (error) {
-      toast.error('Error al eliminar el cliente');
+      toast.error('❌ Error al eliminar el cliente', {
+        icon: '⚠️',
+      });
     }
   };
 
@@ -390,6 +421,19 @@ export function ClientesView() {
 
   return (
     <div className="p-6 w-full min-w-0">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 5000,
+          style: {
+            background: '#333',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+          },
+        }} 
+      />
+      
       <div className="max-w-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Clientes</h1>
