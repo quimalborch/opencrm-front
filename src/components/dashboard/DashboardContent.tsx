@@ -1,6 +1,7 @@
 import { ClientesView } from './views/Clientes';
 import { CompaniesView } from './views/Companies';
 import { SettingsView } from './views/Settings';
+import { NotasView } from './views/Notas';
 
 interface DashboardContentProps {
   activeView: string;
@@ -17,6 +18,8 @@ export function DashboardContent({ activeView }: DashboardContentProps) {
             return <CompaniesView />;
           case 'configuracion':
             return <SettingsView />;
+          case 'notas':
+            return <NotasView />;
           case 'dashboard':
             return (
               <div className="p-6 w-full min-w-0">
