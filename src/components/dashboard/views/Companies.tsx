@@ -379,9 +379,10 @@ export function CompaniesView() {
       const finalOptions = {
         ...options,
         headers: {
+          'Content-Type': 'application/json',
           ...(options.headers || {}),
         },
-        credentials: 'include',
+        credentials: 'include' as RequestCredentials,
       };
 
       const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}${endpoint}`, finalOptions);
