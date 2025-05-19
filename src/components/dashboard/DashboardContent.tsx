@@ -3,6 +3,7 @@ import { CompaniesView } from './views/Companies';
 import { SettingsView } from './views/Settings';
 import { NotasView } from './views/Notas';
 import { ProductsView } from './views/Products';
+import { SalesView } from './views/Sales';
 
 interface DashboardContentProps {
   activeView: string;
@@ -23,6 +24,8 @@ export function DashboardContent({ activeView }: DashboardContentProps) {
             return <NotasView />;
           case 'productos':
             return <ProductsView />;
+          case 'sales':
+            return <SalesView />;
           case 'dashboard':
             return (
               <div className="p-6 w-full min-w-0">
