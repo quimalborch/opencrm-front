@@ -9,7 +9,7 @@ import {
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { Plus, Pencil, Trash2, ShoppingCart } from "lucide-react";
+import { Plus, Pencil, Trash2, ShoppingCart, Filter, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import toast, { Toaster } from 'react-hot-toast';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from "lucide-react";
@@ -17,7 +17,6 @@ import { X } from "lucide-react";
 interface Client {
   id: number;
   name: string;
-  // Other fields not relevant for the selector
 }
 
 interface Product {
@@ -66,14 +65,17 @@ const SaleModal = ({ isOpen, onClose, sale, onSubmit, title, clients, products }
   const [formData, setFormData] = useState<SaleFormData>(sale || emptySale);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [originalQuantity, setOriginalQuantity] = useState<number>(0);
 
   useEffect(() => {
     if (sale) {
       setFormData(sale);
+      setOriginalQuantity(sale.quantity);
       const foundProduct = products.find(p => p.id === sale.productId);
       setSelectedProduct(foundProduct || null);
     } else {
       setFormData(emptySale);
+      setOriginalQuantity(0);
       setSelectedProduct(null);
     }
   }, [sale, products]);
@@ -93,11 +95,29 @@ const SaleModal = ({ isOpen, onClose, sale, onSubmit, title, clients, products }
     e.preventDefault();
     
     // Validate stock availability
-    if (selectedProduct && formData.quantity > selectedProduct.stock) {
-      toast.error(`⚠️ Stock insuficiente. Disponible: ${selectedProduct.stock} unidades`, {
-        icon: '📦',
-      });
-      return;
+    if (selectedProduct) {
+      const isEditingExistingSale = sale !== undefined;
+      
+      if (isEditingExistingSale) {
+        // If editing sale
+        const quantityChange = formData.quantity - originalQuantity;
+        
+        // Only check stock if increasing quantity
+        if (quantityChange > 0 && quantityChange > selectedProduct.stock) {
+          toast.error(`⚠️ No hay suficiente stock para aumentar la cantidad. Disponible: ${selectedProduct.stock} unidades`, {
+            icon: '📦',
+          });
+          return;
+        }
+      } else {
+        // For new sales, check full quantity against stock
+        if (formData.quantity > selectedProduct.stock) {
+          toast.error(`⚠️ Stock insuficiente. Disponible: ${selectedProduct.stock} unidades`, {
+            icon: '📦',
+          });
+          return;
+        }
+      }
     }
     
     setIsSubmitting(true);
@@ -282,6 +302,31 @@ const SaleModal = ({ isOpen, onClose, sale, onSubmit, title, clients, products }
   );
 };
 
+interface SaleResponse {
+  data: Sale[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+interface SaleFilters {
+  clientId?: number;
+  productId?: number;
+  month?: number;
+  year?: number;
+  startDate?: string;
+  endDate?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  page: number;
+  limit: number;
+  sortBy: string;
+  sortOrder: string;
+}
+
 export function SalesView() {
   const { user } = useAuth();
   const [sales, setSales] = useState<Sale[]>([]);
@@ -291,6 +336,23 @@ export function SalesView() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSale, setSelectedSale] = useState<Sale | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0
+  });
+  
+  // Filters state
+  const [filters, setFilters] = useState<SaleFilters>({
+    page: 1,
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc'
+  });
 
   const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
     try {
@@ -331,10 +393,35 @@ export function SalesView() {
     }
   };
 
+  const buildQueryString = (filters: SaleFilters) => {
+    const params = new URLSearchParams();
+    
+    // Add all non-undefined filters to query params
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined) {
+        params.append(key, value.toString());
+      }
+    });
+    
+    return params.toString();
+  };
+
   const fetchSales = async () => {
     try {
-      const data = await makeAuthenticatedRequest('/api/sales');
-      setSales(data);
+      setIsLoading(true);
+      const queryString = buildQueryString(filters);
+      const endpoint = `/api/sales${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await makeAuthenticatedRequest(endpoint);
+      
+      // Handle new response format
+      if (response.data && response.pagination) {
+        setSales(response.data);
+        setPagination(response.pagination);
+      } else {
+        // Handle case where the response is a single sale or old format
+        setSales(Array.isArray(response) ? response : [response]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       toast.error('❌ Error al cargar las ventas', { 
@@ -372,12 +459,36 @@ export function SalesView() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
       await Promise.all([fetchSales(), fetchClients(), fetchProducts()]);
     };
     
     fetchData();
   }, []);
+  
+  // Add effect to refetch when filters change
+  useEffect(() => {
+    fetchSales();
+  }, [filters]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    setFilters(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handleFilterChange = (newFilters: Partial<SaleFilters>) => {
+    // Reset to page 1 when filters change
+    setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc'
+    });
+    setIsFilterOpen(false);
+  };
 
   const handleSubmit = async (formData: SaleFormData) => {
     try {
@@ -464,7 +575,7 @@ export function SalesView() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading && sales.length === 0) {
     return (
       <div className="p-6 flex justify-center items-center w-full min-w-0">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -472,7 +583,7 @@ export function SalesView() {
     );
   }
 
-  if (error) {
+  if (error && sales.length === 0) {
     return (
       <div className="p-6 w-full min-w-0">
         <div className="max-w-full">
@@ -504,80 +615,332 @@ export function SalesView() {
       <div className="max-w-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Ventas</h1>
-          <Button
-            onClick={() => {
-              setSelectedSale(undefined);
-              setIsModalOpen(true);
-            }}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva Venta
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+            >
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              Filtros
+            </Button>
+            <Button
+              onClick={() => {
+                setSelectedSale(undefined);
+                setIsModalOpen(true);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Venta
+            </Button>
+          </div>
         </div>
         
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full">
-          {sales.map((sale) => (
-            <Card key={sale.id} className="w-full">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl">
-                  <div className="flex items-center">
-                    <ShoppingCart className="h-5 w-5 mr-2 text-blue-600" />
-                    Venta #{sale.id}
+        {/* Filtros */}
+        {isFilterOpen && (
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="clientFilter">Cliente</Label>
+                  <select
+                    id="clientFilter"
+                    value={filters.clientId || ""}
+                    onChange={(e) => handleFilterChange({ 
+                      clientId: e.target.value ? Number(e.target.value) : undefined 
+                    })}
+                    className="w-full h-10 px-3 rounded-md border-gray-200"
+                  >
+                    <option value="">Todos los clientes</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>{client.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="productFilter">Producto</Label>
+                  <select
+                    id="productFilter"
+                    value={filters.productId || ""}
+                    onChange={(e) => handleFilterChange({ 
+                      productId: e.target.value ? Number(e.target.value) : undefined 
+                    })}
+                    className="w-full h-10 px-3 rounded-md border-gray-200"
+                  >
+                    <option value="">Todos los productos</option>
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>{product.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="dateFilter">Filtrar por mes/año</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      id="monthFilter"
+                      value={filters.month || ""}
+                      onChange={(e) => handleFilterChange({ 
+                        month: e.target.value ? Number(e.target.value) : undefined 
+                      })}
+                      className="w-full h-10 px-3 rounded-md border-gray-200"
+                    >
+                      <option value="">Mes</option>
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                        <option key={month} value={month}>
+                          {new Date(0, month - 1).toLocaleString('es-ES', { month: 'long' })}
+                        </option>
+                      ))}
+                    </select>
+                    
+                    <select
+                      id="yearFilter"
+                      value={filters.year || ""}
+                      onChange={(e) => handleFilterChange({ 
+                        year: e.target.value ? Number(e.target.value) : undefined 
+                      })}
+                      className="w-full h-10 px-3 rounded-md border-gray-200"
+                    >
+                      <option value="">Año</option>
+                      {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
+                    </select>
                   </div>
-                </CardTitle>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedSale(sale);
-                      setIsModalOpen(true);
-                    }}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="amountFilter">Rango de importe</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      id="minAmountFilter"
+                      type="number"
+                      placeholder="Mínimo"
+                      value={filters.minAmount || ""}
+                      onChange={(e) => handleFilterChange({ 
+                        minAmount: e.target.value ? Number(e.target.value) : undefined 
+                      })}
+                      className="w-full h-10 px-3 rounded-md border-gray-200"
+                    />
+                    <Input
+                      id="maxAmountFilter"
+                      type="number"
+                      placeholder="Máximo"
+                      value={filters.maxAmount || ""}
+                      onChange={(e) => handleFilterChange({ 
+                        maxAmount: e.target.value ? Number(e.target.value) : undefined 
+                      })}
+                      className="w-full h-10 px-3 rounded-md border-gray-200"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="dateRangeFilter">Rango de fechas</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      id="startDateFilter"
+                      type="date"
+                      value={filters.startDate || ""}
+                      onChange={(e) => handleFilterChange({ startDate: e.target.value || undefined })}
+                      className="w-full h-10 px-3 rounded-md border-gray-200"
+                    />
+                    <Input
+                      id="endDateFilter"
+                      type="date"
+                      value={filters.endDate || ""}
+                      onChange={(e) => handleFilterChange({ endDate: e.target.value || undefined })}
+                      className="w-full h-10 px-3 rounded-md border-gray-200"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="sortByFilter">Ordenar por</Label>
+                  <select
+                    id="sortByFilter"
+                    value={filters.sortBy}
+                    onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
+                    className="w-full h-10 px-3 rounded-md border-gray-200"
                   >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(sale.id)}
+                    <option value="createdAt">Fecha de creación</option>
+                    <option value="totalAmount">Importe total</option>
+                    <option value="quantity">Cantidad</option>
+                    <option value="unitPrice">Precio unitario</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="sortOrderFilter">Orden</Label>
+                  <select
+                    id="sortOrderFilter"
+                    value={filters.sortOrder}
+                    onChange={(e) => handleFilterChange({ sortOrder: e.target.value })}
+                    className="w-full h-10 px-3 rounded-md border-gray-200"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <option value="desc">Descendente</option>
+                    <option value="asc">Ascendente</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2 flex items-end">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={resetFilters}
+                  >
+                    Limpiar filtros
                   </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <p className="text-sm font-medium text-gray-900">
-                    {sale.product?.name || getProductName(sale.productId)}
-                  </p>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-gray-500">Cantidad</p>
-                      <p className="text-sm font-medium">{sale.quantity} unidades</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {isLoading && (
+          <div className="flex justify-center my-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        )}
+        
+        {sales.length === 0 && !isLoading ? (
+          <Card className="w-full mb-6">
+            <CardContent className="p-6 flex flex-col items-center justify-center">
+              <ShoppingCart className="h-16 w-16 text-gray-300 mb-4" />
+              <h3 className="text-xl font-medium text-gray-900 mb-2">No se encontraron ventas</h3>
+              <p className="text-gray-500 text-center mb-4">
+                No hay registros de ventas que coincidan con los filtros establecidos
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={resetFilters}
+              >
+                Limpiar filtros
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full">
+            {sales.map((sale) => (
+              <Card key={sale.id} className="w-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xl">
+                    <div className="flex items-center">
+                      <ShoppingCart className="h-5 w-5 mr-2 text-blue-600" />
+                      Venta #{sale.id}
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Precio unitario</p>
-                      <p className="text-sm font-medium">{formatCurrency(sale.unitPrice)}</p>
+                  </CardTitle>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setSelectedSale(sale);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(sale.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-gray-900">
+                      {sale.product?.name || getProductName(sale.productId)}
+                    </p>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-500">Cantidad</p>
+                        <p className="text-sm font-medium">{sale.quantity} unidades</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Precio unitario</p>
+                        <p className="text-sm font-medium">{formatCurrency(sale.unitPrice)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="border-t border-gray-100 pt-3 mt-3">
+                      <div className="flex justify-between items-center">
+                        <p className="text-sm font-medium text-gray-600">Total:</p>
+                        <p className="text-lg font-bold text-blue-600">{formatCurrency(sale.totalAmount)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center text-sm text-gray-600 pt-2">
+                      <p>Cliente: <span className="font-medium">{sale.client?.name || getClientName(sale.clientId)}</span></p>
+                      <p>Fecha: {formatDate(sale.date)}</p>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+        
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="flex justify-center items-center mt-6 gap-2">
+            <Button 
+              variant="outline" 
+              size="icon"
+              disabled={filters.page <= 1}
+              onClick={() => handlePageChange(filters.page - 1)}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                .filter(page => {
+                  // Show first, last, current, and pages around current
+                  const current = filters.page;
+                  return page === 1 || 
+                         page === pagination.totalPages || 
+                         (page >= current - 1 && page <= current + 1);
+                })
+                .map((page, index, array) => {
+                  // Add ellipsis if there are gaps
+                  const prevPage = array[index - 1];
+                  const showEllipsisBefore = prevPage && page - prevPage > 1;
                   
-                  <div className="border-t border-gray-100 pt-3 mt-3">
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm font-medium text-gray-600">Total:</p>
-                      <p className="text-lg font-bold text-blue-600">{formatCurrency(sale.totalAmount)}</p>
+                  return (
+                    <div key={page} className="flex items-center">
+                      {showEllipsisBefore && (
+                        <span className="px-2 text-gray-500">...</span>
+                      )}
+                      <Button
+                        variant={filters.page === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page)}
+                        className="min-w-8 h-8"
+                      >
+                        {page}
+                      </Button>
                     </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center text-sm text-gray-600 pt-2">
-                    <p>Cliente: <span className="font-medium">{sale.client?.name || getClientName(sale.clientId)}</span></p>
-                    <p>Fecha: {formatDate(sale.date)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  );
+                })}
+            </div>
+            
+            <Button 
+              variant="outline" 
+              size="icon"
+              disabled={filters.page >= pagination.totalPages}
+              onClick={() => handlePageChange(filters.page + 1)}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         <SaleModal
           isOpen={isModalOpen}
