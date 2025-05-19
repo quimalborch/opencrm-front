@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   Menu,
   Building2,
-  StickyNote
+  StickyNote,
+  Package
 } from "lucide-react";
 import { DashboardContent } from './DashboardContent';
 
@@ -21,6 +22,7 @@ const menuItems = [
   { id: 'clientes', label: 'Clientes', icon: Users },
   { id: 'companies', label: 'Compañías', icon: Building2 },
   { id: 'notas', label: 'Notas', icon: StickyNote },
+  { id: 'productos', label: 'Productos', icon: Package },
   { id: 'calendario', label: 'Calendario', icon: Calendar },
   { id: 'mensajes', label: 'Mensajes', icon: MessageSquare },
   { id: 'reportes', label: 'Reportes', icon: BarChart },
