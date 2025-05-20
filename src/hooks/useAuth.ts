@@ -18,6 +18,7 @@ interface User {
   email: string;
   image?: string;
   permissions?: Permission[];
+  isAdmin?: boolean;
 }
 
 interface AuthState {

@@ -59,6 +59,9 @@ export function Sidebar() {
     // If no module specified, it's always accessible
     if (module === null) return true;
     
+    // If user is admin, bypass permission check and allow access to all modules
+    if (user?.isAdmin) return true;
+    
     // If no user or no permissions, deny access
     if (!user?.permissions) return false;
     
@@ -210,6 +213,11 @@ export function Sidebar() {
                   <div>
                     <p className="text-sm font-medium text-gray-900">{user?.name || 'Usuario'}</p>
                     <p className="text-xs text-gray-500">{user?.email}</p>
+                    {user?.isAdmin && (
+                      <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                        Admin
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
