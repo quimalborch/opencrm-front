@@ -19,16 +19,16 @@ import {
 import { DashboardContent } from './DashboardContent';
 
 const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'clientes', label: 'Clientes', icon: Users },
-  { id: 'companies', label: 'Compañías', icon: Building2 },
-  { id: 'notas', label: 'Notas', icon: StickyNote },
-  { id: 'productos', label: 'Productos', icon: Package },
-  { id: 'sales', label: 'Ventas', icon: ShoppingCart },
-  { id: 'calendario', label: 'Calendario', icon: Calendar },
-  { id: 'mensajes', label: 'Mensajes', icon: MessageSquare },
-  { id: 'reportes', label: 'Reportes', icon: BarChart },
-  { id: 'configuracion', label: 'Configuración', icon: Settings },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, module: null },
+  { id: 'clientes', label: 'Clientes', icon: Users, module: 'clients' },
+  { id: 'companies', label: 'Compañías', icon: Building2, module: 'companies' },
+  { id: 'notas', label: 'Notas', icon: StickyNote, module: 'notes' },
+  { id: 'productos', label: 'Productos', icon: Package, module: 'products' },
+  { id: 'sales', label: 'Ventas', icon: ShoppingCart, module: 'sales' },
+  { id: 'calendario', label: 'Calendario', icon: Calendar, module: 'tasks' },
+  { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, module: null },
+  { id: 'reportes', label: 'Reportes', icon: BarChart, module: null },
+  { id: 'configuracion', label: 'Configuración', icon: Settings, module: null },
 ];
 
 export function Sidebar() {
@@ -52,6 +52,21 @@ export function Sidebar() {
     if (isExpandedFixed) {
       setIsHovered(false);
     }
+  };
+
+  // Function to check if user has permission to view a module
+  const hasViewPermission = (module: string | null) => {
+    // If no module specified, it's always accessible
+    if (module === null) return true;
+    
+    // If no user or no permissions, deny access
+    if (!user?.permissions) return false;
+    
+    // Find the permission for this module
+    const permission = user.permissions.find(p => p.module === module);
+    
+    // If permission exists and view is true, allow access
+    return permission?.view === true;
   };
 
   return (
@@ -111,29 +126,41 @@ export function Sidebar() {
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
+              const hasPermission = hasViewPermission(item.module);
+              
               return (
                 <li key={item.id}>
                   <button
                     onClick={() => {
-                      setActiveItem(item.id);
-                      setIsMobileMenuOpen(false);
+                      if (hasPermission) {
+                        setActiveItem(item.id);
+                        setIsMobileMenuOpen(false);
+                      }
                     }}
+                    disabled={!hasPermission}
                     className={cn(
                       "w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200",
                       {
                         "justify-center": !isExpanded,
                         "space-x-3": isExpanded,
+                        "opacity-40 cursor-not-allowed": !hasPermission,
                       },
-                      activeItem === item.id
+                      activeItem === item.id && hasPermission
                         ? "bg-blue-50 text-blue-600 shadow-sm hover:shadow-md hover:bg-blue-100"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm"
                     )}
                     title={!isExpanded ? item.label : undefined}
                   >
                     <Icon className={cn("h-5 w-5 flex-shrink-0 transition-colors", {
-                      "text-blue-500": activeItem === item.id
+                      "text-blue-500": activeItem === item.id && hasPermission
                     })} />
-                    {isExpanded && <span className="font-medium">{item.label}</span>}
+                    {isExpanded && (
+                      <span className={cn("font-medium", {
+                        "line-through": !hasPermission
+                      })}>
+                        {item.label}
+                      </span>
+                    )}
                   </button>
                 </li>
               );

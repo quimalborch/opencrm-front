@@ -1,10 +1,23 @@
 import { useState, useEffect } from 'react';
 
+interface Permission {
+  id: number;
+  userId: string;
+  module: string;
+  view: boolean;
+  create: boolean;
+  modify: boolean;
+  delete: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface User {
   id: string;
   name: string;
   email: string;
   image?: string;
+  permissions?: Permission[];
 }
 
 interface AuthState {
@@ -73,8 +86,14 @@ export const useAuth = () => {
       const session = await sessionResponse.json();
       
       if (session?.user) {
+        // Extract the user data with permissions
+        const userData = {
+          ...session.user,
+          permissions: session.user.permissions || []
+        };
+
         setAuthState({
-          user: session.user,
+          user: userData,
           isLoading: false,
           error: null,
         });
@@ -162,8 +181,14 @@ export const useAuth = () => {
       const session = await response.json();
       
       if (session?.user) {
+        // Extract the user data with permissions
+        const userData = {
+          ...session.user,
+          permissions: session.user.permissions || []
+        };
+
         setAuthState({
-          user: session.user,
+          user: userData,
           isLoading: false,
           error: null,
         });
