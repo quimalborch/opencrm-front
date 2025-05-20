@@ -5,14 +5,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { Plus, Pencil, Trash2, ShoppingCart, Filter, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { Badge } from "../../ui/badge";
+import { Plus, Pencil, Trash2, ShoppingCart, Filter, ChevronLeft, ChevronRight, SlidersHorizontal, CalendarIcon, UserCircle, Package, CreditCard, ArrowUpDown, Search, X } from "lucide-react";
 import toast, { Toaster } from 'react-hot-toast';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X } from "lucide-react";
 
 interface Client {
   id: number;
@@ -134,31 +135,32 @@ const SaleModal = ({ isOpen, onClose, sale, onSubmit, title, clients, products }
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 mt-[64px] md:mt-0" />
+        <Dialog.Overlay className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 mt-[64px] md:mt-0 z-40" />
         <Dialog.Content 
           className="
             fixed left-[50%] translate-x-[-50%]
             md:top-[50%] md:translate-y-[-50%]
             top-[80px] bottom-[16px]
-            w-[calc(100%-2rem)] md:w-full max-w-4xl 
+            w-[calc(100%-2rem)] md:w-full max-w-3xl 
             md:h-auto md:max-h-[90vh]
-            overflow-hidden bg-white rounded-xl shadow-2xl 
+            overflow-hidden bg-white dark:bg-gray-900 rounded-2xl shadow-2xl 
             data-[state=open]:animate-in data-[state=closed]:animate-out 
             data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
             data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
             data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] 
             data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] 
-            flex flex-col
+            flex flex-col z-50
+            border border-gray-200 dark:border-gray-800
           "
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
-            <Dialog.Title className="text-lg font-bold text-gray-900">
+          <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
+            <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-white">
               {title}
             </Dialog.Title>
             <Dialog.Close asChild>
-              <button className="rounded-full p-2 hover:bg-gray-100 transition-colors">
-                <X className="h-5 w-5 text-gray-500" />
+              <button className="rounded-full p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <X className="h-5 w-5" />
               </button>
             </Dialog.Close>
           </div>
@@ -166,102 +168,139 @@ const SaleModal = ({ isOpen, onClose, sale, onSubmit, title, clients, products }
           {/* Content */}
           <div className="flex-1 flex flex-col min-h-0">
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto p-4 md:p-8">
+              <div className="flex-1 overflow-y-auto p-5">
                 <div className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="productId">Producto</Label>
-                        <select
-                          id="productId"
-                          value={formData.productId}
-                          onChange={(e) => handleProductChange(parseInt(e.target.value))}
-                          required
-                          className="w-full h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                        >
-                          <option value="">Selecciona un producto</option>
-                          {products.map((product) => (
-                            <option key={product.id} value={product.id}>
-                              {product.name} - Stock: {product.stock}
-                            </option>
-                          ))}
-                        </select>
+                  <div className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-3">
+                        <Label htmlFor="productId" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Producto
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Package className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <select
+                            id="productId"
+                            value={formData.productId}
+                            onChange={(e) => handleProductChange(parseInt(e.target.value))}
+                            required
+                            className="block w-full pl-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100 h-12 transition-colors"
+                          >
+                            <option value="">Selecciona un producto</option>
+                            {products.map((product) => (
+                              <option key={product.id} value={product.id}>
+                                {product.name} - Stock: {product.stock}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="clientId">Cliente</Label>
-                        <select
-                          id="clientId"
-                          value={formData.clientId}
-                          onChange={(e) => setFormData(prev => ({ ...prev, clientId: parseInt(e.target.value) }))}
-                          required
-                          className="w-full h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                        >
-                          <option value="">Selecciona un cliente</option>
-                          {clients.map((client) => (
-                            <option key={client.id} value={client.id}>
-                              {client.name}
-                            </option>
-                          ))}
-                        </select>
+                      <div className="space-y-3">
+                        <Label htmlFor="clientId" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Cliente
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <UserCircle className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <select
+                            id="clientId"
+                            value={formData.clientId}
+                            onChange={(e) => setFormData(prev => ({ ...prev, clientId: parseInt(e.target.value) }))}
+                            required
+                            className="block w-full pl-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100 h-12 transition-colors"
+                          >
+                            <option value="">Selecciona un cliente</option>
+                            {clients.map((client) => (
+                              <option key={client.id} value={client.id}>
+                                {client.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="quantity">Cantidad</Label>
-                        <Input
-                          id="quantity"
-                          type="number"
-                          min="1"
-                          value={formData.quantity}
-                          onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
-                          required
-                          placeholder="1"
-                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className="space-y-3">
+                        <Label htmlFor="quantity" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Cantidad
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="quantity"
+                            type="number"
+                            min="1"
+                            value={formData.quantity}
+                            onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                            required
+                            placeholder="1"
+                            className="pl-10 h-12 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100 transition-colors"
+                          />
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">№</span>
+                          </div>
+                        </div>
                         {selectedProduct && (
-                          <p className="text-sm text-gray-500">
-                            Stock disponible: {selectedProduct.stock}
+                          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                            <Package className="h-3 w-3 mr-1" />
+                            Stock disponible: <span className="font-medium ml-1">{selectedProduct.stock}</span>
                           </p>
                         )}
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="unitPrice">Precio unitario</Label>
-                        <Input
-                          id="unitPrice"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.unitPrice}
-                          onChange={(e) => setFormData(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
-                          required
-                          placeholder="0.00"
-                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                        />
+                      <div className="space-y-3">
+                        <Label htmlFor="unitPrice" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Precio unitario
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="unitPrice"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={formData.unitPrice}
+                            onChange={(e) => setFormData(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
+                            required
+                            placeholder="0.00"
+                            className="pl-10 h-12 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100 transition-colors"
+                          />
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <CreditCard className="h-5 w-5 text-gray-400" />
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="date">Fecha</Label>
-                        <Input
-                          id="date"
-                          type="date"
-                          value={formData.date}
-                          onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                          required
-                          className="h-11 px-4 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                        />
+                      <div className="space-y-3">
+                        <Label htmlFor="date" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Fecha
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="date"
+                            type="date"
+                            value={formData.date}
+                            onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                            required
+                            className="pl-10 h-12 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100 transition-colors"
+                          />
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <CalendarIcon className="h-5 w-5 text-gray-400" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
                     {formData.quantity > 0 && formData.unitPrice > 0 && (
-                      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                        <p className="text-lg font-bold text-gray-900">
-                          Importe total: {new Intl.NumberFormat('es-ES', {
+                      <div className="mt-6 p-5 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                        <p className="text-lg font-bold text-indigo-700 dark:text-indigo-300 flex items-center justify-between">
+                          <span>Importe total:</span>
+                          <span>{new Intl.NumberFormat('es-ES', {
                             style: 'currency',
                             currency: 'EUR'
-                          }).format(formData.quantity * formData.unitPrice)}
+                          }).format(formData.quantity * formData.unitPrice)}</span>
                         </p>
                       </div>
                     )}
@@ -269,21 +308,21 @@ const SaleModal = ({ isOpen, onClose, sale, onSubmit, title, clients, products }
                 </div>
               </div>
 
-              <div className="border-t border-gray-100 bg-gray-50 p-4 md:p-6 sticky bottom-0 z-10">
-                <div className="flex flex-col-reverse md:flex-row md:justify-end md:items-center gap-4">
+              <div className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-5 sticky bottom-0 z-10">
+                <div className="flex flex-col-reverse md:flex-row md:justify-end md:items-center gap-3">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={onClose}
                     disabled={isSubmitting}
-                    className="h-11 px-4 rounded-lg border-gray-200 hover:bg-gray-50 transition-colors duration-200 w-full md:w-auto"
+                    className="rounded-xl border-gray-300 bg-white h-12 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white transition-all w-full md:w-auto"
                   >
                     Cancelar
                   </Button>
                   <Button 
                     type="submit" 
                     disabled={isSubmitting}
-                    className="h-11 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 flex items-center justify-center gap-2 w-full md:w-auto"
+                    className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-12 text-white transition-all duration-200 flex items-center justify-center gap-2 w-full md:w-auto dark:bg-indigo-700 dark:hover:bg-indigo-600"
                   >
                     {isSubmitting ? (
                       <>
@@ -577,8 +616,11 @@ export function SalesView() {
 
   if (isLoading && sales.length === 0) {
     return (
-      <div className="p-6 flex justify-center items-center w-full min-w-0">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="flex h-[calc(100vh-64px)] w-full items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="h-16 w-16 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600 dark:border-gray-700 dark:border-t-indigo-500"></div>
+          <p className="mt-4 text-lg font-medium text-gray-600 dark:text-gray-300">Cargando ventas...</p>
+        </div>
       </div>
     );
   }
@@ -587,9 +629,19 @@ export function SalesView() {
     return (
       <div className="p-6 w-full min-w-0">
         <div className="max-w-full">
-          <Card className="bg-red-50">
-            <CardContent className="pt-6">
-              <p className="text-red-600">{error}</p>
+          <Card className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 shadow-lg">
+            <CardContent className="p-8 flex flex-col items-center">
+              <div className="rounded-full bg-red-100 dark:bg-red-900/50 p-3 mb-4">
+                <X className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-xl font-medium text-red-800 dark:text-red-300 mb-2">Error al cargar datos</h3>
+              <p className="text-red-600 dark:text-red-400 text-center">{error}</p>
+              <Button 
+                onClick={() => window.location.reload()}
+                className="mt-4 bg-red-600 hover:bg-red-700 text-white dark:bg-red-700 dark:hover:bg-red-600"
+              >
+                Intentar nuevamente
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -598,27 +650,44 @@ export function SalesView() {
   }
 
   return (
-    <div className="p-6 w-full min-w-0">
+    <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900 min-h-[calc(100vh-64px)] w-full">
       <Toaster 
         position="top-right"
         toastOptions={{
           duration: 5000,
           style: {
-            background: '#333',
+            background: '#2e3444',
             color: '#fff',
             padding: '16px',
-            borderRadius: '8px',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+          },
+          success: {
+            style: {
+              background: '#1a7f64',
+            },
+          },
+          error: {
+            style: {
+              background: '#b91c1c',
+            },
           },
         }} 
       />
       
-      <div className="max-w-full">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Ventas</h1>
-          <div className="flex items-center gap-2">
+      <div className="max-w-7xl mx-auto p-6 lg:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Gestión de Ventas</h1>
+            <p className="text-gray-500 dark:text-gray-400">Registra y administra tus ventas de manera eficiente</p>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <Button
               variant="outline"
               onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="flex-1 md:flex-none rounded-xl border-gray-300 dark:border-gray-700 h-11 bg-white dark:bg-gray-800 transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <SlidersHorizontal className="mr-2 h-4 w-4" />
               Filtros
@@ -628,6 +697,7 @@ export function SalesView() {
                 setSelectedSale(undefined);
                 setIsModalOpen(true);
               }}
+              className="flex-1 md:flex-none rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 transition-all dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
               Nueva Venta
@@ -637,160 +707,202 @@ export function SalesView() {
         
         {/* Filtros */}
         {isFilterOpen && (
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="mb-8 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg overflow-hidden">
+            <CardHeader className="bg-gray-50 dark:bg-gray-800/50 pb-0 pt-5 px-5 border-b border-gray-100 dark:border-gray-800">
+              <CardTitle className="text-gray-900 dark:text-white text-lg font-medium flex items-center">
+                <Filter className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+                Filtros avanzados
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 bg-white dark:bg-gray-900">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <div className="space-y-2">
-                  <Label htmlFor="clientFilter">Cliente</Label>
-                  <select
-                    id="clientFilter"
-                    value={filters.clientId || ""}
-                    onChange={(e) => handleFilterChange({ 
-                      clientId: e.target.value ? Number(e.target.value) : undefined 
-                    })}
-                    className="w-full h-10 px-3 rounded-md border-gray-200"
-                  >
-                    <option value="">Todos los clientes</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>{client.name}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="productFilter">Producto</Label>
-                  <select
-                    id="productFilter"
-                    value={filters.productId || ""}
-                    onChange={(e) => handleFilterChange({ 
-                      productId: e.target.value ? Number(e.target.value) : undefined 
-                    })}
-                    className="w-full h-10 px-3 rounded-md border-gray-200"
-                  >
-                    <option value="">Todos los productos</option>
-                    {products.map((product) => (
-                      <option key={product.id} value={product.id}>{product.name}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="dateFilter">Filtrar por mes/año</Label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <Label htmlFor="clientFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Cliente</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <UserCircle className="h-5 w-5 text-gray-400" />
+                    </div>
                     <select
-                      id="monthFilter"
-                      value={filters.month || ""}
+                      id="clientFilter"
+                      value={filters.clientId || ""}
                       onChange={(e) => handleFilterChange({ 
-                        month: e.target.value ? Number(e.target.value) : undefined 
+                        clientId: e.target.value ? Number(e.target.value) : undefined 
                       })}
-                      className="w-full h-10 px-3 rounded-md border-gray-200"
+                      className="w-full pl-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
                     >
-                      <option value="">Mes</option>
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
-                        <option key={month} value={month}>
-                          {new Date(0, month - 1).toLocaleString('es-ES', { month: 'long' })}
-                        </option>
-                      ))}
-                    </select>
-                    
-                    <select
-                      id="yearFilter"
-                      value={filters.year || ""}
-                      onChange={(e) => handleFilterChange({ 
-                        year: e.target.value ? Number(e.target.value) : undefined 
-                      })}
-                      className="w-full h-10 px-3 rounded-md border-gray-200"
-                    >
-                      <option value="">Año</option>
-                      {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                        <option key={year} value={year}>{year}</option>
+                      <option value="">Todos los clientes</option>
+                      {clients.map((client) => (
+                        <option key={client.id} value={client.id}>{client.name}</option>
                       ))}
                     </select>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="amountFilter">Rango de importe</Label>
+                  <Label htmlFor="productFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Producto</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Package className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <select
+                      id="productFilter"
+                      value={filters.productId || ""}
+                      onChange={(e) => handleFilterChange({ 
+                        productId: e.target.value ? Number(e.target.value) : undefined 
+                      })}
+                      className="w-full pl-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="">Todos los productos</option>
+                      {products.map((product) => (
+                        <option key={product.id} value={product.id}>{product.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="dateFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por mes/año</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    <Input
-                      id="minAmountFilter"
-                      type="number"
-                      placeholder="Mínimo"
-                      value={filters.minAmount || ""}
-                      onChange={(e) => handleFilterChange({ 
-                        minAmount: e.target.value ? Number(e.target.value) : undefined 
-                      })}
-                      className="w-full h-10 px-3 rounded-md border-gray-200"
-                    />
-                    <Input
-                      id="maxAmountFilter"
-                      type="number"
-                      placeholder="Máximo"
-                      value={filters.maxAmount || ""}
-                      onChange={(e) => handleFilterChange({ 
-                        maxAmount: e.target.value ? Number(e.target.value) : undefined 
-                      })}
-                      className="w-full h-10 px-3 rounded-md border-gray-200"
-                    />
+                    <div className="relative">
+                      <select
+                        id="monthFilter"
+                        value={filters.month || ""}
+                        onChange={(e) => handleFilterChange({ 
+                          month: e.target.value ? Number(e.target.value) : undefined 
+                        })}
+                        className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                      >
+                        <option value="">Mes</option>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                          <option key={month} value={month}>
+                            {new Date(0, month - 1).toLocaleString('es-ES', { month: 'long' })}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="relative">
+                      <select
+                        id="yearFilter"
+                        value={filters.year || ""}
+                        onChange={(e) => handleFilterChange({ 
+                          year: e.target.value ? Number(e.target.value) : undefined 
+                        })}
+                        className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                      >
+                        <option value="">Año</option>
+                        {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="amountFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Rango de importe</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-400">€</span>
+                      </div>
+                      <Input
+                        id="minAmountFilter"
+                        type="number"
+                        placeholder="Mínimo"
+                        value={filters.minAmount || ""}
+                        onChange={(e) => handleFilterChange({ 
+                          minAmount: e.target.value ? Number(e.target.value) : undefined 
+                        })}
+                        className="pl-8 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-400">€</span>
+                      </div>
+                      <Input
+                        id="maxAmountFilter"
+                        type="number"
+                        placeholder="Máximo"
+                        value={filters.maxAmount || ""}
+                        onChange={(e) => handleFilterChange({ 
+                          maxAmount: e.target.value ? Number(e.target.value) : undefined 
+                        })}
+                        className="pl-8 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5">
                 <div className="space-y-2">
-                  <Label htmlFor="dateRangeFilter">Rango de fechas</Label>
+                  <Label htmlFor="dateRangeFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Rango de fechas</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    <Input
-                      id="startDateFilter"
-                      type="date"
-                      value={filters.startDate || ""}
-                      onChange={(e) => handleFilterChange({ startDate: e.target.value || undefined })}
-                      className="w-full h-10 px-3 rounded-md border-gray-200"
-                    />
-                    <Input
-                      id="endDateFilter"
-                      type="date"
-                      value={filters.endDate || ""}
-                      onChange={(e) => handleFilterChange({ endDate: e.target.value || undefined })}
-                      className="w-full h-10 px-3 rounded-md border-gray-200"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="startDateFilter"
+                        type="date"
+                        value={filters.startDate || ""}
+                        onChange={(e) => handleFilterChange({ startDate: e.target.value || undefined })}
+                        className="rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div className="relative">
+                      <Input
+                        id="endDateFilter"
+                        type="date"
+                        value={filters.endDate || ""}
+                        onChange={(e) => handleFilterChange({ endDate: e.target.value || undefined })}
+                        className="rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="sortByFilter">Ordenar por</Label>
-                  <select
-                    id="sortByFilter"
-                    value={filters.sortBy}
-                    onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
-                    className="w-full h-10 px-3 rounded-md border-gray-200"
-                  >
-                    <option value="createdAt">Fecha de creación</option>
-                    <option value="totalAmount">Importe total</option>
-                    <option value="quantity">Cantidad</option>
-                    <option value="unitPrice">Precio unitario</option>
-                  </select>
+                  <Label htmlFor="sortByFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Ordenar por</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <ArrowUpDown className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <select
+                      id="sortByFilter"
+                      value={filters.sortBy}
+                      onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
+                      className="w-full pl-10 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="createdAt">Fecha de creación</option>
+                      <option value="totalAmount">Importe total</option>
+                      <option value="quantity">Cantidad</option>
+                      <option value="unitPrice">Precio unitario</option>
+                    </select>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="sortOrderFilter">Orden</Label>
-                  <select
-                    id="sortOrderFilter"
-                    value={filters.sortOrder}
-                    onChange={(e) => handleFilterChange({ sortOrder: e.target.value })}
-                    className="w-full h-10 px-3 rounded-md border-gray-200"
-                  >
-                    <option value="desc">Descendente</option>
-                    <option value="asc">Ascendente</option>
-                  </select>
+                  <Label htmlFor="sortOrderFilter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Orden</Label>
+                  <div className="relative">
+                    <select
+                      id="sortOrderFilter"
+                      value={filters.sortOrder}
+                      onChange={(e) => handleFilterChange({ sortOrder: e.target.value })}
+                      className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm h-11 focus:border-indigo-500 focus:ring-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="desc">Descendente</option>
+                      <option value="asc">Ascendente</option>
+                    </select>
+                  </div>
                 </div>
                 
                 <div className="space-y-2 flex items-end">
                   <Button 
                     variant="outline" 
-                    className="w-full"
+                    className="w-full rounded-xl border-gray-300 dark:border-gray-700 h-11 bg-white dark:bg-gray-800 transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                     onClick={resetFilters}
                   >
+                    <X className="h-4 w-4 mr-2" />
                     Limpiar filtros
                   </Button>
                 </div>
@@ -799,89 +911,128 @@ export function SalesView() {
           </Card>
         )}
         
-        {isLoading && (
-          <div className="flex justify-center my-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        {isLoading && sales.length > 0 && (
+          <div className="flex justify-center my-6">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600 dark:border-gray-700 dark:border-t-indigo-500"></div>
           </div>
         )}
         
         {sales.length === 0 && !isLoading ? (
-          <Card className="w-full mb-6">
-            <CardContent className="p-6 flex flex-col items-center justify-center">
-              <ShoppingCart className="h-16 w-16 text-gray-300 mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No se encontraron ventas</h3>
-              <p className="text-gray-500 text-center mb-4">
-                No hay registros de ventas que coincidan con los filtros establecidos
+          <Card className="w-full mb-8 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg overflow-hidden">
+            <CardContent className="p-12 flex flex-col items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
+                <ShoppingCart className="h-10 w-10 text-gray-400 dark:text-gray-500" />
+              </div>
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">No se encontraron ventas</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">
+                No hay registros de ventas que coincidan con los filtros establecidos. Prueba con otros criterios o registra una nueva venta.
               </p>
-              <Button 
-                variant="outline" 
-                onClick={resetFilters}
-              >
-                Limpiar filtros
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={resetFilters}
+                  className="rounded-xl border-gray-300 dark:border-gray-700 h-11 bg-white dark:bg-gray-800 transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Limpiar filtros
+                </Button>
+                <Button
+                  onClick={() => {
+                    setSelectedSale(undefined);
+                    setIsModalOpen(true);
+                  }}
+                  className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 transition-all dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nueva venta
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full">
             {sales.map((sale) => (
-              <Card key={sale.id} className="w-full">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xl">
-                    <div className="flex items-center">
-                      <ShoppingCart className="h-5 w-5 mr-2 text-blue-600" />
-                      Venta #{sale.id}
+              <Card key={sale.id} className="overflow-hidden border border-gray-100 dark:border-gray-800 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col">
+                <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between space-y-0">
+                  <div className="flex space-x-3 items-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                      <ShoppingCart className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
-                  </CardTitle>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setSelectedSale(sale);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(sale.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <CardTitle className="font-semibold text-base text-gray-900 dark:text-white">
+                      Venta #{sale.id}
+                    </CardTitle>
                   </div>
+                  <Badge 
+                    className={
+                      new Date(sale.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+                    }>
+                    {new Date(sale.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? 'Reciente' : formatDate(sale.date)}
+                  </Badge>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-gray-900">
+                <CardContent className="p-4 flex-1 flex flex-col">
+                  <div className="mb-3">
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Producto</h3>
+                    <p className="text-base font-semibold text-gray-900 dark:text-white">
                       {sale.product?.name || getProductName(sale.productId)}
                     </p>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <p className="text-xs text-gray-500">Cantidad</p>
-                        <p className="text-sm font-medium">{sale.quantity} unidades</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Precio unitario</p>
-                        <p className="text-sm font-medium">{formatCurrency(sale.unitPrice)}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="border-t border-gray-100 pt-3 mt-3">
-                      <div className="flex justify-between items-center">
-                        <p className="text-sm font-medium text-gray-600">Total:</p>
-                        <p className="text-lg font-bold text-blue-600">{formatCurrency(sale.totalAmount)}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Cantidad</h3>
+                      <div className="flex items-center">
+                        <span className="text-base font-semibold text-gray-900 dark:text-white">{sale.quantity}</span>
+                        <span className="ml-1 text-sm text-gray-500 dark:text-gray-400">unidades</span>
                       </div>
                     </div>
-                    
-                    <div className="flex justify-between items-center text-sm text-gray-600 pt-2">
-                      <p>Cliente: <span className="font-medium">{sale.client?.name || getClientName(sale.clientId)}</span></p>
-                      <p>Fecha: {formatDate(sale.date)}</p>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Precio</h3>
+                      <p className="text-base font-semibold text-gray-900 dark:text-white">{formatCurrency(sale.unitPrice)}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Cliente</h3>
+                    <div className="flex items-center">
+                      <UserCircle className="h-4 w-4 text-gray-400 mr-1" />
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {sale.client?.name || getClientName(sale.clientId)}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total:</span>
+                      <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">{formatCurrency(sale.totalAmount)}</span>
                     </div>
                   </div>
                 </CardContent>
+                <CardFooter className="p-3 bg-gray-50 dark:bg-gray-800/40 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedSale(sale);
+                      setIsModalOpen(true);
+                    }}
+                    className="h-9 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(sale.id)}
+                    className="h-9 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Eliminar
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>
@@ -889,56 +1040,66 @@ export function SalesView() {
         
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex justify-center items-center mt-6 gap-2">
-            <Button 
-              variant="outline" 
-              size="icon"
-              disabled={filters.page <= 1}
-              onClick={() => handlePageChange(filters.page - 1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            
-            <div className="flex items-center gap-1">
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                .filter(page => {
-                  // Show first, last, current, and pages around current
-                  const current = filters.page;
-                  return page === 1 || 
-                         page === pagination.totalPages || 
-                         (page >= current - 1 && page <= current + 1);
-                })
-                .map((page, index, array) => {
-                  // Add ellipsis if there are gaps
-                  const prevPage = array[index - 1];
-                  const showEllipsisBefore = prevPage && page - prevPage > 1;
-                  
-                  return (
-                    <div key={page} className="flex items-center">
-                      {showEllipsisBefore && (
-                        <span className="px-2 text-gray-500">...</span>
-                      )}
-                      <Button
-                        variant={filters.page === page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handlePageChange(page)}
-                        className="min-w-8 h-8"
-                      >
-                        {page}
-                      </Button>
-                    </div>
-                  );
-                })}
+          <div className="flex justify-center mt-8">
+            <div className="inline-flex items-center rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-1">
+              <Button 
+                variant="ghost"
+                size="sm"
+                disabled={filters.page <= 1}
+                onClick={() => handlePageChange(filters.page - 1)}
+                className="h-9 px-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 disabled:opacity-50"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Anterior
+              </Button>
+              
+              <div className="flex items-center px-2 border-l border-r border-gray-200 dark:border-gray-800 mx-1">
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    // Show first, last, current, and pages around current
+                    const current = filters.page;
+                    return page === 1 || 
+                          page === pagination.totalPages || 
+                          (page >= current - 1 && page <= current + 1);
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis if there are gaps
+                    const prevPage = array[index - 1];
+                    const showEllipsisBefore = prevPage && page - prevPage > 1;
+                    
+                    return (
+                      <div key={page} className="flex items-center">
+                        {showEllipsisBefore && (
+                          <span className="px-2 text-gray-500 dark:text-gray-400">...</span>
+                        )}
+                        <Button
+                          variant={filters.page === page ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                          className={`min-w-9 h-9 rounded-lg ${
+                            filters.page === page 
+                              ? 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600' 
+                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
+                          }`}
+                        >
+                          {page}
+                        </Button>
+                      </div>
+                    );
+                  })}
+              </div>
+              
+              <Button 
+                variant="ghost"
+                size="sm"
+                disabled={filters.page >= pagination.totalPages}
+                onClick={() => handlePageChange(filters.page + 1)}
+                className="h-9 px-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 disabled:opacity-50"
+              >
+                Siguiente
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
-            
-            <Button 
-              variant="outline" 
-              size="icon"
-              disabled={filters.page >= pagination.totalPages}
-              onClick={() => handlePageChange(filters.page + 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
           </div>
         )}
 
