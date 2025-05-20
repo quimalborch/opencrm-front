@@ -70,10 +70,32 @@ const SaleModal = ({ isOpen, onClose, sale, onSubmit, title, clients, products }
 
   useEffect(() => {
     if (sale) {
-      setFormData(sale);
-      setOriginalQuantity(sale.quantity);
-      const foundProduct = products.find(p => p.id === sale.productId);
-      setSelectedProduct(foundProduct || null);
+      try {
+        // Parse the date from the server format correctly
+        const saleDate = new Date(sale.date);
+        
+        // Format it to YYYY-MM-DD for the date input element
+        const formattedDate = saleDate.toISOString().split('T')[0];
+        
+        console.log("Original sale date:", sale.date);
+        console.log("Formatted date for form:", formattedDate);
+        
+        setFormData({
+          ...sale,
+          date: formattedDate // Format date as YYYY-MM-DD for date input
+        });
+        setOriginalQuantity(sale.quantity);
+        const foundProduct = products.find(p => p.id === sale.productId);
+        setSelectedProduct(foundProduct || null);
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        // Fallback to current date if there's an error
+        setFormData({
+          ...sale,
+          date: new Date().toISOString().split('T')[0]
+        });
+        setOriginalQuantity(sale.quantity);
+      }
     } else {
       setFormData(emptySale);
       setOriginalQuantity(0);
@@ -531,12 +553,31 @@ export function SalesView() {
 
   const handleSubmit = async (formData: SaleFormData) => {
     try {
-      // Ensure numeric values
+      console.log("Form data before processing:", formData);
+
+      // Get the date directly from the form input (YYYY-MM-DD format)
+      const dateString = formData.date;
+      console.log("Date from input:", dateString);
+      
+      // Split the date into components
+      const [year, month, day] = dateString.split('-').map(num => parseInt(num));
+      
+      // Send the date exactly as selected, without timezone conversion
+      // Format it as an ISO string but preserve the exact date
+      const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T00:00:00.000Z`;
+      
+      console.log("Formatted date to send:", formattedDate);
+      
+      // Ensure numeric values and correct date format
       const processedData = {
-        ...formData,
         quantity: Number(formData.quantity),
-        unitPrice: Number(formData.unitPrice)
+        unitPrice: Number(formData.unitPrice),
+        clientId: Number(formData.clientId),
+        productId: Number(formData.productId),
+        date: formattedDate // Use the manually formatted ISO string
       };
+      
+      console.log("Processed data:", processedData);
       
       if (selectedSale) {
         await makeAuthenticatedRequest(`/api/sales?id=${selectedSale.id}`, {
