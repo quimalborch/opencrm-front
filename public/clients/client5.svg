@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="60" viewBox="0 0 180 60">
+  <path d="M30 15h120v30H30z" fill="white"/>
+  <path d="M37 22h16v16H37z" fill="none" stroke="#10b981" stroke-width="2"/>
+  <path d="M41 26h8v8h-8z" fill="#10b981"/>
+  <text x="60" y="35" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#1e293b">GreenBox</text>
+</svg> 

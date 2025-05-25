@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="60" viewBox="0 0 180 60">
+  <path d="M30 15h120v30H30z" fill="white"/>
+  <rect x="37" y="22" width="16" height="16" rx="2" fill="#0284c7"/>
+  <text x="60" y="35" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#1e293b">Innovex</text>
+</svg> 

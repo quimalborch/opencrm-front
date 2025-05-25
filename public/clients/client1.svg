@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="60" viewBox="0 0 180 60">
+  <path d="M30 15h120v30H30z" fill="white"/>
+  <path d="M45 22.5l7.5 15h-15l7.5-15zm0 4.5l-3.75 7.5h7.5L45 27z" fill="#0ea5e9"/>
+  <text x="65" y="35" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#1e293b">ACME Corp.</text>
+</svg> 

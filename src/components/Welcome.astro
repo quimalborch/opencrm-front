@@ -1,193 +1,674 @@
 ---
-import astroLogo from '../assets/astro.svg';
-import background from '../assets/background.svg';
+import { Image } from 'astro:assets';
+import crmLogo from '../assets/crm-logo.svg?url';
 ---
 
-<div class="hero-container">
-	<div class="hero-content">
-		<h1 class="title">OpenCRM</h1>
-		<p class="subtitle">La solución definitiva de CRM de código abierto</p>
-		
-		<div class="features-grid">
-			<div class="feature-card">
-				<svg xmlns="http://www.w3.org/2000/svg" class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-				</svg>
-				<h3>Gestión de Clientes</h3>
-				<p>Centraliza toda la información de tus clientes en un solo lugar</p>
-			</div>
-			
-			<div class="feature-card">
-				<svg xmlns="http://www.w3.org/2000/svg" class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-				</svg>
-				<h3>Análisis Avanzado</h3>
-				<p>Toma decisiones basadas en datos con nuestras herramientas analíticas</p>
-			</div>
-
-			<div class="feature-card">
-				<svg xmlns="http://www.w3.org/2000/svg" class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-				</svg>
-				<h3>Automatización</h3>
-				<p>Automatiza tareas repetitivas y mejora la productividad</p>
+<div id="app">
+	<section class="hero" data-section>
+		<div class="hero__content">
+			<h1 class="hero__title">
+				<span class="hero__title-line">Open<span class="text-gradient">CRM</span></span>
+				<span class="hero__title-line">Potencia tu</span>
+				<span class="hero__title-line">negocio</span>
+			</h1>
+			<p class="hero__subtitle">La solución definitiva de CRM de código abierto para empresas modernas</p>
+			<div class="hero__cta">
+				<a href="/demo" class="btn btn--primary">Comenzar gratis</a>
+				<a href="/docs" class="btn btn--secondary">Explorar funciones</a>
 			</div>
 		</div>
-
-		<div class="cta-buttons">
-			<a href="/demo" class="cta-primary">Prueba Gratuita</a>
-			<a href="/docs" class="cta-secondary">Documentación</a>
+		<div class="hero__visual">
+			<div class="hero__decoration"></div>
+			<div class="hero__img-wrapper" id="dashboard3d">
+				<img src="/dashboard-preview.png" alt="OpenCRM Dashboard" class="hero__img" />
+			</div>
 		</div>
+	</section>
 
-		<div class="open-source-badge">
-			<svg xmlns="http://www.w3.org/2000/svg" class="badge-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-			</svg>
-			<span>100% Open Source</span>
+	<section class="clients" data-section>
+		<div class="container">
+			<h2 class="section-title">Empresas que confían en nosotros</h2>
+			<div class="client-logos">
+				<div class="client-logo" data-speed="1.2">
+					<img src="/clients/client1.svg" alt="Cliente 1" />
+				</div>
+				<div class="client-logo" data-speed="0.8">
+					<img src="/clients/client2.svg" alt="Cliente 2" />
+				</div>
+				<div class="client-logo" data-speed="1.4">
+					<img src="/clients/client3.svg" alt="Cliente 3" />
+				</div>
+				<div class="client-logo" data-speed="0.9">
+					<img src="/clients/client4.svg" alt="Cliente 4" />
+				</div>
+				<div class="client-logo" data-speed="1.1">
+					<img src="/clients/client5.svg" alt="Cliente 5" />
+				</div>
+			</div>
 		</div>
+	</section>
+
+	<section class="features" data-section>
+		<div class="container">
+			<h2 class="section-title">Características principales</h2>
+			<div class="features-grid">
+				<div class="feature-card" data-feature="sales">
+					<div class="feature-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+					</div>
+					<h3>Gestión de Ventas</h3>
+					<p>Seguimiento completo del ciclo de ventas, desde lead hasta cliente, con previsiones precisas y análisis de rendimiento.</p>
+				</div>
+
+				<div class="feature-card" data-feature="clients">
+					<div class="feature-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+						</svg>
+					</div>
+					<h3>Gestión de Clientes</h3>
+					<p>Centraliza toda la información de tus clientes en un solo lugar, con historial completo de interacciones y comunicaciones.</p>
+				</div>
+
+				<div class="feature-card" data-feature="companies">
+					<div class="feature-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+						</svg>
+					</div>
+					<h3>Gestión de Compañías</h3>
+					<p>Organiza múltiples entidades empresariales con jerarquías claras, contactos asociados y oportunidades de negocio.</p>
+				</div>
+
+				<div class="feature-card" data-feature="admin">
+					<div class="feature-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+						</svg>
+					</div>
+					<h3>Control de Administración</h3>
+					<p>Define roles y permisos granulares para garantizar que cada usuario tenga acceso exactamente a lo que necesita.</p>
+				</div>
+
+				<div class="feature-card" data-feature="notes">
+					<div class="feature-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+						</svg>
+					</div>
+					<h3>Gestión de Notas</h3>
+					<p>Documenta conversaciones, decisiones y tareas pendientes con un sistema de notas integrado y colaborativo.</p>
+				</div>
+
+				<div class="feature-card" data-feature="automation">
+					<div class="feature-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+						</svg>
+					</div>
+					<h3>Automatización Inteligente</h3>
+					<p>Automatiza flujos de trabajo repetitivos para mejorar la productividad y reducir errores humanos.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="cta-section" data-section>
+		<div class="container">
+			<div class="cta-content">
+				<h2 class="cta-title">¿Listo para transformar tu negocio?</h2>
+				<p class="cta-text">Únete a miles de empresas que ya están aprovechando el poder de OpenCRM</p>
+				<div class="cta-buttons">
+					<a href="/signup" class="btn btn--primary btn--large">Comenzar ahora</a>
+					<a href="/contact" class="btn btn--tertiary">Hablar con un asesor</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div class="scroll-indicator">
+		<div class="scroll-indicator__dot"></div>
+		<div class="scroll-indicator__dot"></div>
+		<div class="scroll-indicator__dot"></div>
+		<div class="scroll-indicator__dot"></div>
 	</div>
 </div>
 
+<script>
+	import Lenis from 'lenis';
+	import { gsap } from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+	gsap.registerPlugin(ScrollTrigger);
+
+	// Inicializar Lenis para scroll suave
+	const lenis = new Lenis({
+		duration: 1.2,
+		easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+		direction: 'vertical',
+		gestureDirection: 'vertical',
+		smooth: true,
+	});
+
+	function raf(time) {
+		lenis.raf(time);
+		requestAnimationFrame(raf);
+	}
+
+	requestAnimationFrame(raf);
+	
+	// Actualizar ScrollTrigger cada vez que el scroll se actualice
+	lenis.on('scroll', ScrollTrigger.update);
+
+	// Integrar GSAP y ScrollTrigger con Lenis
+	gsap.ticker.add((time) => {
+		lenis.raf(time * 1000);
+	});
+
+	// Efecto 3D para el dashboard
+	const dashboard = document.getElementById('dashboard3d');
+	if (dashboard) {
+		// Aplicar transformaciones iniciales para preparar el efecto 3D
+		gsap.set(dashboard, {
+			transformPerspective: 1000,
+			transformStyle: "preserve-3d",
+			transformOrigin: "center center"
+		});
+
+		// Variables para el efecto
+		let xPos = 0;
+		let yPos = 0;
+		let xPrev = 0;
+		let yPrev = 0;
+		const maxRotation = 10; // Grados máximos de rotación
+
+		// Función para actualizar la posición con suavizado
+		const updatePosition = () => {
+			// Suavizar el movimiento con interpolación
+			xPrev += (xPos - xPrev) * 0.1;
+			yPrev += (yPos - yPrev) * 0.1;
+			
+			// Aplicar la transformación
+			gsap.to(dashboard, {
+				duration: 0.3,
+				ease: "power2.out",
+				rotationY: -xPrev * maxRotation,
+				rotationX: yPrev * maxRotation,
+				boxShadow: `${xPrev * 10}px ${yPrev * 10}px 30px rgba(0,0,0,0.15)`
+			});
+			
+			requestAnimationFrame(updatePosition);
+		};
+		
+		updatePosition();
+
+		// Manejar el evento de movimiento del ratón
+		document.addEventListener('mousemove', (e) => {
+			// Calcular posición relativa a la ventana
+			xPos = (e.clientX / window.innerWidth - 0.5) * 2;
+			yPos = (e.clientY / window.innerHeight - 0.5) * 2;
+		});
+		
+		// Manejar eventos táctiles para dispositivos móviles
+		document.addEventListener('touchmove', (e) => {
+			if (e.touches.length > 0) {
+				xPos = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
+				yPos = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
+				e.preventDefault();
+			}
+		}, { passive: false });
+		
+		// Restablecer la posición cuando el ratón sale de la ventana
+		document.addEventListener('mouseleave', () => {
+			xPos = 0;
+			yPos = 0;
+		});
+	}
+
+	// Animación para la sección Hero
+	const heroTitle = document.querySelector('.hero__title');
+	const heroTitleLines = gsap.utils.toArray('.hero__title-line');
+	const heroSubtitle = document.querySelector('.hero__subtitle');
+	const heroCta = document.querySelector('.hero__cta');
+	const heroImg = document.querySelector('.hero__img');
+
+	gsap.set([...heroTitleLines, heroSubtitle, heroCta, heroImg], { 
+		autoAlpha: 0, 
+		y: 50 
+	});
+
+	const heroTimeline = gsap.timeline({ delay: 0.5 });
+	
+	heroTimeline
+		.to(heroTitleLines[0], { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" })
+		.to(heroTitleLines[1], { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+		.to(heroTitleLines[2], { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+		.to(heroSubtitle, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.4")
+		.to(heroCta, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.4")
+		.to(heroImg, { autoAlpha: 1, y: 0, duration: 1, ease: "power2.out" }, "-=0.6");
+
+	// Animar las tarjetas de características
+	const featureCards = gsap.utils.toArray('.feature-card');
+	
+	featureCards.forEach(card => {
+		gsap.set(card, { y: 100, autoAlpha: 0 });
+		
+		ScrollTrigger.create({
+			trigger: card,
+			start: "top bottom-=100",
+			end: "bottom center",
+			onEnter: () => {
+				gsap.to(card, { 
+					y: 0, 
+					autoAlpha: 1, 
+					duration: 0.8, 
+					ease: "power3.out",
+					stagger: 0.1
+				});
+			},
+			once: true
+		});
+	});
+
+	// Animar logos de clientes 
+	const clientLogos = gsap.utils.toArray('.client-logo');
+	
+	gsap.set(clientLogos, { autoAlpha: 0, scale: 0.8 });
+	
+	ScrollTrigger.create({
+		trigger: '.clients',
+		start: "top bottom-=50",
+		onEnter: () => {
+			gsap.to(clientLogos, { 
+				autoAlpha: 1, 
+				scale: 1, 
+				duration: 0.6, 
+				ease: "back.out(1.7)",
+				stagger: 0.1
+			});
+		},
+		once: true
+	});
+
+	// Efecto de paralaje en los logos de clientes
+	clientLogos.forEach(logo => {
+		const speed = logo.dataset.speed || 1;
+		
+		gsap.to(logo, {
+			y: () => -30 * speed,
+			ease: "none",
+			scrollTrigger: {
+				trigger: '.clients',
+				start: "top bottom",
+				end: "bottom top",
+				scrub: true
+			}
+		});
+	});
+
+	// Actualizar indicador de scroll
+	const sections = gsap.utils.toArray('[data-section]');
+	const scrollDots = gsap.utils.toArray('.scroll-indicator__dot');
+
+	sections.forEach((section, i) => {
+		ScrollTrigger.create({
+			trigger: section,
+			start: "top center",
+			end: "bottom center",
+			onEnter: () => updateScrollIndicator(i),
+			onEnterBack: () => updateScrollIndicator(i)
+		});
+	});
+
+	function updateScrollIndicator(index) {
+		scrollDots.forEach((dot, i) => {
+			if (i === index) {
+				dot.classList.add('active');
+			} else {
+				dot.classList.remove('active');
+			}
+		});
+	}
+
+	// Inicializar el primer punto del indicador como activo
+	updateScrollIndicator(0);
+</script>
+
 <style>
-	.hero-container {
-		min-height: calc(100vh - 64px);
-		background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-		color: #1e293b;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 2rem;
+	:root {
+		--color-primary: #0ea5e9;
+		--color-primary-dark: #0284c7;
+		--color-secondary: #6366f1;
+		--color-background: #f8fafc;
+		--color-text: #1e293b;
+		--color-text-light: #64748b;
+		--color-white: #ffffff;
+		--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+		--shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+		--border-radius: 0.5rem;
 	}
 
-	.hero-content {
+	#app {
+		position: relative;
+	}
+	
+	.container {
 		max-width: 1200px;
-		text-align: center;
-		padding: 2rem;
+		margin: 0 auto;
+		padding: 0 2rem;
 	}
 
-	.title {
-		font-size: 4rem;
-		font-weight: 800;
+	section {
+		padding: 8rem 2rem;
+		overflow: hidden;
+		position: relative;
+	}
+
+	/* Hero Section */
+	.hero {
+		min-height: 100vh;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		padding: 2rem;
+		background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	}
+
+	.hero__content {
+		padding-right: 2rem;
+	}
+
+	.hero__title {
+		font-size: 4.5rem;
+		font-weight: 900;
+		line-height: 1.1;
+		margin-bottom: 1.5rem;
+	}
+
+	.hero__title-line {
+		display: block;
+	}
+
+	.text-gradient {
 		background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
-		margin-bottom: 1rem;
+		background-clip: text;
 	}
 
-	.subtitle {
-		font-size: 1.5rem;
-		color: #475569;
+	.hero__subtitle {
+		font-size: 1.25rem;
+		color: var(--color-text-light);
+		max-width: 500px;
+		margin-bottom: 2.5rem;
+	}
+
+	.hero__cta {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.hero__visual {
+		position: relative;
+	}
+
+	.hero__decoration {
+		position: absolute;
+		width: 400px;
+		height: 400px;
+		border-radius: 50%;
+		background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 1;
+	}
+
+	.hero__img-wrapper {
+		position: relative;
+		z-index: 2;
+		transform-style: preserve-3d;
+		perspective: 1000px;
+		transition: transform 0.2s ease;
+		border-radius: var(--border-radius);
+		overflow: hidden;
+	}
+
+	.hero__img {
+		width: 100%;
+		border-radius: var(--border-radius);
+		box-shadow: var(--shadow-lg);
+		transform-style: preserve-3d;
+		transition: transform 0.3s ease;
+	}
+
+	/* Buttons */
+	.btn {
+		padding: 0.75rem 1.5rem;
+		border-radius: var(--border-radius);
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.3s ease;
+		display: inline-block;
+	}
+
+	.btn--primary {
+		background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+		color: var(--color-white);
+	}
+
+	.btn--primary:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow);
+	}
+
+	.btn--secondary {
+		background: var(--color-white);
+		color: var(--color-primary);
+		border: 2px solid var(--color-primary);
+	}
+
+	.btn--secondary:hover {
+		transform: translateY(-2px);
+		background: rgba(14, 165, 233, 0.05);
+	}
+
+	.btn--tertiary {
+		background: transparent;
+		color: var(--color-primary);
+		border-bottom: 2px solid var(--color-primary);
+		border-radius: 0;
+		padding: 0.5rem 0;
+	}
+
+	.btn--large {
+		padding: 1rem 2rem;
+		font-size: 1.125rem;
+	}
+
+	/* Clients Section */
+	.clients {
+		background-color: var(--color-white);
+		text-align: center;
+	}
+
+	.section-title {
+		font-size: 2.5rem;
+		font-weight: 800;
 		margin-bottom: 3rem;
+		text-align: center;
+		color: var(--color-text);
+	}
+
+	.client-logos {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 4rem;
+	}
+
+	.client-logo {
+		height: 80px;
+		opacity: 0.7;
+		transition: opacity 0.3s ease;
+	}
+
+	.client-logo:hover {
+		opacity: 1;
+	}
+
+	.client-logo img {
+		height: 100%;
+		width: auto;
+	}
+
+	/* Features Section */
+	.features {
+		background-color: var(--color-background);
 	}
 
 	.features-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 		gap: 2rem;
-		margin-bottom: 3rem;
 	}
 
 	.feature-card {
-		background: white;
-		border-radius: 1rem;
+		background-color: var(--color-white);
+		border-radius: var(--border-radius);
 		padding: 2rem;
-		transition: transform 0.3s ease;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
+		box-shadow: var(--shadow);
+		transition: transform 0.3s ease, box-shadow 0.3s ease;
 	}
 
 	.feature-card:hover {
 		transform: translateY(-5px);
+		box-shadow: var(--shadow-lg);
 	}
 
 	.feature-icon {
 		width: 3rem;
 		height: 3rem;
-		color: #0ea5e9;
-		margin-bottom: 1rem;
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
+		margin-bottom: 1.5rem;
+		color: var(--color-primary);
 	}
 
 	.feature-card h3 {
 		font-size: 1.25rem;
-		margin-bottom: 0.5rem;
-		color: #1e293b;
-		width: 100%;
+		font-weight: 700;
+		margin-bottom: 1rem;
+		color: var(--color-text);
 	}
 
 	.feature-card p {
-		color: #64748b;
-		font-size: 1rem;
-		width: 100%;
+		color: var(--color-text-light);
+		line-height: 1.6;
+	}
+
+	/* CTA Section */
+	.cta-section {
+		background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+		color: var(--color-white);
+		text-align: center;
+	}
+
+	.cta-title {
+		font-size: 2.5rem;
+		font-weight: 800;
+		margin-bottom: 1.5rem;
+	}
+
+	.cta-text {
+		font-size: 1.25rem;
+		margin-bottom: 2.5rem;
+		opacity: 0.9;
 	}
 
 	.cta-buttons {
 		display: flex;
-		gap: 1rem;
+		gap: 1.5rem;
 		justify-content: center;
-		margin-bottom: 2rem;
 	}
 
-	.cta-primary, .cta-secondary {
-		padding: 1rem 2rem;
-		border-radius: 0.5rem;
-		font-weight: 600;
-		text-decoration: none;
-		transition: transform 0.3s ease;
+	.cta-section .btn--primary {
+		background: var(--color-white);
+		color: var(--color-primary);
 	}
 
-	.cta-primary {
-		background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-		color: white;
+	.cta-section .btn--tertiary {
+		color: var(--color-white);
+		border-bottom: 2px solid var(--color-white);
 	}
 
-	.cta-secondary {
-		background: white;
-		color: #0ea5e9;
-		border: 2px solid #0ea5e9;
+	/* Scroll indicator */
+	.scroll-indicator {
+		position: fixed;
+		right: 2rem;
+		top: 50%;
+		transform: translateY(-50%);
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		z-index: 50;
 	}
 
-	.cta-primary:hover, .cta-secondary:hover {
-		transform: translateY(-2px);
+	.scroll-indicator__dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background-color: rgba(100, 116, 139, 0.3);
+		transition: all 0.3s ease;
 	}
 
-	.open-source-badge {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 1rem;
-		background: white;
-		border-radius: 2rem;
-		font-size: 0.875rem;
-		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+	.scroll-indicator__dot.active {
+		background-color: var(--color-primary);
+		transform: scale(1.5);
 	}
 
-	.badge-icon {
-		width: 1.25rem;
-		height: 1.25rem;
-		color: #0ea5e9;
+	@media (max-width: 1024px) {
+		.hero {
+			grid-template-columns: 1fr;
+			text-align: center;
+		}
+
+		.hero__content {
+			padding-right: 0;
+			margin-bottom: 3rem;
+		}
+
+		.hero__subtitle {
+			margin: 0 auto 2.5rem;
+		}
+
+		.hero__cta {
+			justify-content: center;
+		}
 	}
 
 	@media (max-width: 768px) {
-		.title {
+		.hero__title {
 			font-size: 3rem;
 		}
 
-		.subtitle {
-			font-size: 1.25rem;
+		.section-title {
+			font-size: 2rem;
 		}
 
-		.features-grid {
-			grid-template-columns: 1fr;
+		.cta-title {
+			font-size: 2rem;
 		}
 
-		.cta-buttons {
+		.hero__cta, .cta-buttons {
 			flex-direction: column;
+		}
+
+		.scroll-indicator {
+			display: none;
 		}
 	}
 </style>

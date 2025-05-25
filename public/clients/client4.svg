@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="60" viewBox="0 0 180 60">
+  <path d="M30 15h120v30H30z" fill="white"/>
+  <path d="M45 22v16l-8-8 8-8zm8 0v16l-8-8 8-8z" fill="#8b5cf6"/>
+  <text x="60" y="35" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#1e293b">FastTrack</text>
+</svg> 
