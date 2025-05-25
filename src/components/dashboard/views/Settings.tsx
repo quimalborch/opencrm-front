@@ -4,12 +4,13 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "../../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import { Switch } from "../../ui/switch";
 import { Label } from "../../ui/label";
 import toast, { Toaster } from 'react-hot-toast';
-import { UsersIcon, ShieldCheckIcon, FilterX, X, ShieldIcon } from "lucide-react";
+import { UsersIcon, ShieldCheckIcon, FilterX, X, ShieldIcon, Settings2Icon } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 
@@ -29,10 +30,19 @@ interface Permission {
   delete: boolean;
 }
 
+interface GlobalConfig {
+  id: number;
+  allowRegister: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export function SettingsView() {
   const [users, setUsers] = useState<User[]>([]);
   const [permissions, setPermissions] = useState<{ [key: string]: Permission[] }>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [globalConfig, setGlobalConfig] = useState<GlobalConfig | null>(null);
+  const [isConfigLoading, setIsConfigLoading] = useState(true);
 
   const modules = [
     { id: 'companies', name: 'Empresas' },
@@ -138,8 +148,57 @@ export function SettingsView() {
     }
   };
 
+  const fetchGlobalConfig = async () => {
+    try {
+      setIsConfigLoading(true);
+      const data = await makeAuthenticatedRequest('/api/config');
+      setGlobalConfig(data);
+      return data;
+    } catch (error) {
+      console.error('Error al cargar la configuración global:', error);
+      toast.error('❌ Error al cargar la configuración global', {
+        icon: '⚙️',
+        duration: 3000
+      });
+      return null;
+    } finally {
+      setIsConfigLoading(false);
+    }
+  };
+
+  const updateGlobalConfig = async (configUpdate: Partial<GlobalConfig>) => {
+    try {
+      const result = await makeAuthenticatedRequest('/api/config', {
+        method: 'PUT',
+        body: JSON.stringify(configUpdate)
+      });
+      
+      setGlobalConfig(result);
+      toast.success('✅ Configuración actualizada correctamente', {
+        icon: '⚙️',
+      });
+      return result;
+    } catch (error) {
+      console.error('Error al actualizar la configuración global:', error);
+      toast.error('❌ Error al actualizar la configuración: ' + (error instanceof Error ? error.message : 'Error desconocido'), {
+        icon: '⚠️',
+        duration: 5000,
+      });
+      return null;
+    }
+  };
+
+  const handleConfigChange = async (key: keyof GlobalConfig, value: any) => {
+    if (!globalConfig) return;
+    
+    await updateGlobalConfig({
+      [key]: value
+    });
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchGlobalConfig();
   }, []);
 
   const handlePermissionChange = async (
@@ -252,7 +311,7 @@ export function SettingsView() {
           <div className="flex items-center gap-3 w-full md:w-auto">
             <Button
               variant="outline"
-              onClick={() => fetchUsers()}
+              onClick={() => { fetchUsers(); fetchGlobalConfig(); }}
               className="flex-1 md:flex-none rounded-xl border-gray-300 dark:border-gray-700 h-11 bg-white dark:bg-gray-800 transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <FilterX className="mr-2 h-4 w-4" />
@@ -261,8 +320,15 @@ export function SettingsView() {
           </div>
         </div>
         
-        <Tabs defaultValue="permissions" className="w-full">
+        <Tabs defaultValue="configurationaplication" className="w-full">
           <TabsList className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl mb-6">
+            <TabsTrigger 
+              value="configurationaplication"
+              className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm px-4 py-2 transition-all"
+            >
+              <Settings2Icon className="h-4 w-4 mr-2" />
+              Configuración de aplicación
+            </TabsTrigger>
             <TabsTrigger 
               value="permissions"
               className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm px-4 py-2 transition-all"
@@ -272,6 +338,82 @@ export function SettingsView() {
             </TabsTrigger>
             {/* Aquí puedes añadir más pestañas de configuración */}
           </TabsList>
+
+          <TabsContent value="configurationaplication" className="mt-6">
+            <Card className="overflow-hidden border border-gray-100 dark:border-gray-800 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200">
+              <CardHeader className="p-5 flex flex-row items-center justify-between bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                      <Settings2Icon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    Configuración Global
+                  </CardTitle>
+                  <CardDescription className="text-sm text-gray-500 dark:text-gray-400 ml-10">
+                    Ajustes generales del sistema
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="p-5">
+                {isConfigLoading ? (
+                  <div className="flex h-40 w-full items-center justify-center">
+                    <div className="flex flex-col items-center">
+                      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600 dark:border-gray-700 dark:border-t-indigo-500"></div>
+                      <p className="mt-4 text-sm font-medium text-gray-600 dark:text-gray-300">Cargando configuración...</p>
+                    </div>
+                  </div>
+                ) : globalConfig ? (
+                  <div className="space-y-6">
+                    <div className="space-y-3 pb-5 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                      <h3 className="font-medium text-lg text-gray-900 dark:text-white">Configuración de Usuarios</h3>
+                      
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 space-x-3">
+                        <div>
+                          <Label htmlFor="allow-register" className="text-gray-700 dark:text-gray-300 font-medium block">
+                            Permitir registro de usuarios
+                          </Label>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Si está activado, los nuevos usuarios podrán registrarse en la plataforma
+                          </p>
+                        </div>
+                        <Switch
+                          id="allow-register"
+                          checked={globalConfig.allowRegister}
+                          onCheckedChange={(checked) => handleConfigChange('allowRegister', checked)}
+                          className="data-[state=checked]:bg-indigo-600 dark:data-[state=checked]:bg-indigo-500"
+                        />
+                      </div>
+                      
+                      <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        Última actualización: {new Date(globalConfig.updatedAt).toLocaleString()}
+                      </div>
+                    </div>
+                    
+                    {/* Aquí pueden ir más secciones de configuración en el futuro */}
+                    
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 px-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-800/30">
+                    <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                      <X className="h-8 w-8 text-red-600 dark:text-red-500" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Error de configuración</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-center max-w-lg mb-4">
+                      No se pudo cargar la configuración global. Por favor, inténtalo de nuevo.
+                    </p>
+                    <Button
+                      onClick={() => fetchGlobalConfig()}
+                      className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 transition-all dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white"
+                    >
+                      <FilterX className="h-4 w-4 mr-2" />
+                      Intentar nuevamente
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="permissions" className="mt-6">
             <div className="grid gap-6">
